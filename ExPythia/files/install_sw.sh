@@ -3,11 +3,14 @@
 #---------------------------------------------------------------------
 #---------------------------------------------------------------------
 # o Specify the directories
-#   sw_dir: The directory where the libraries and header files are installed.
-#   swsrc_dir: The directory where the package source files are copied to.
+#   proj_dir: The project directory. All work is done under this directory
+#             Create two directories (src and sw) under this directory, e.g. 
+#             cd ${proj_dir}; mkdir src sw
 #---------------------------------------------------------------------
-sw_dir=/nfs/space1/tkohno/work/Phenomenology/sw
-swsrc_dir=/nfs/space1/tkohno/work/Phenomenology/src
+proj_dir=/nfs/space1/tkohno/work/Phenomenology
+#---------------------------------------------------------------------
+sw_dir=${proj_dir}/sw
+swsrc_dir=${proj_dir}/src
 #---------------------------------------------------------------------
 # o Specify which software to install
 #   Set 'yes' to install, otherwise leave it empty or set string other 
@@ -27,7 +30,7 @@ mkdir -p ${swsrc_dir}
 cd ${swsrc_dir}
 
 # LHAPDF
-url=http://www.hepforge.org/archive/lhapdf/LHAPDF-6.1.6.tar.gz
+url=http://www.hepforge.org/archive/lhapdf/LHAPDF-6.2.1.tar.gz
 if [[ ${install_lhapdf} == "yes" ]]; then
     fname=$(basename ${url})
     pname=$(echo ${fname} | sed "s/\.tar\.gz//g")
@@ -43,7 +46,7 @@ if [[ ${install_lhapdf} == "yes" ]]; then
 fi
 
 # Fastjet
-url=http://fastjet.fr/repo/fastjet-3.2.0.tar.gz
+url=http://www.fastjet.fr/repo/fastjet-3.3.1.tar.gz
 if [[ ${install_fastjet} == "yes" ]]; then
     fname=$(basename ${url})
     pname=$(echo ${fname} | sed "s/\.tar\.gz//g")
@@ -59,7 +62,8 @@ if [[ ${install_fastjet} == "yes" ]]; then
 fi
 
 # HepMC
-url=http://lcgapp.cern.ch/project/simu/HepMC/download/HepMC-2.06.08.tar.gz
+#url=http://lcgapp.cern.ch/project/simu/HepMC/download/HepMC-2.06.08.tar.gz
+url=http://hepmc.web.cern.ch/hepmc/releases/hepmc3.0.0.tgz
 if [[ ${install_hepmc} == "yes" ]]; then
     fname=$(basename ${url})
     pname=$(echo ${fname} | sed "s/\.tar\.gz//g")
@@ -82,7 +86,7 @@ if [[ ${install_hepmc} == "yes" ]]; then
 fi
 
 # MadGraph MC@NLO
-url=https://launchpad.net/mg5amcnlo/2.0/2.4.0/+download/MG5_aMC_v2.4.0.tar.gz
+url=https://launchpad.net/mg5amcnlo/2.0/2.6.x/+download/MG5_aMC_v2.6.3.2.tar.gz
 if [[ ${install_madgraph} == "yes" ]]; then
     fname=$(basename ${url})
     pname=$(echo ${fname} | sed "s/\.tar\.gz//g" | sed "s/\./_/g")
@@ -100,14 +104,14 @@ EOF
 fi
 
 # Pythia8
-url=http://home.thep.lu.se/~torbjorn/pythia8/pythia8219.tgz
+url=http://home.thep.lu.se/~torbjorn/pythia8/pythia8235.tgz
 if [[ ${install_pythia8} == "yes" ]]; then
     fname=$(basename ${url})
     pname=$(echo ${fname} | sed "s/\.tgz//g")
     if [[ ! -e $fname ]]; then
 	wget ${url}
     fi
-    #tar xvfz ${fname}
+    tar xvfz ${fname}
     cd ${pname}
     ./configure --prefix=${sw_dir} \
 	--enable-shared \

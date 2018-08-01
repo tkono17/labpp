@@ -28,7 +28,7 @@ all: $(TARGET_SHARED_LIB) $(TARGET_STATIC_LIB) $(TARGET_EXES) $(SWIG_LIB)
 
 include basic.makefile
 
-INSTALL_DIR=$(SW_DIR)
+INSTALL_DIR=$(SWDIR)
 #install: all#
 #	cp -r McData $(INSTALL_DIR)/include
 #	cp lib/lib*.so $(INSTALL_DIR)/lib

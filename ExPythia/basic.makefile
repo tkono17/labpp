@@ -67,16 +67,16 @@ GLIBS    += $(ROOTGLIBS)
 #----------------------------------------------------------------------
 # FastJet+LHEF
 #----------------------------------------------------------------------
-SW_DIR=$(PH_SW_DIR)
-fastjet_dir = $(SW_DIR)
+# SW_DIR=$(PH_SW_DIR)
+fastjet_dir = $(SWDIR)
 CXXFLAGS += -I$(fastjet_dir)/include 
 LIBS     += -L$(fastjet_dir)/lib -lfastjet
-CXXFLAGS += -I$(SW_DIR)/MG5_aMC_v2_4_0/ExRootAnalysis
-LIBS     += -L$(SW_DIR)/MG5_aMC_v2_4_0/ExRootAnalysis -lExRootAnalysis
+CXXFLAGS += -I$(SWDIR)/MG5_aMC_v2_6_3_2/ExRootAnalysis
+LIBS     += -L$(SWDIR)/MG5_aMC_v2_6_3_2/ExRootAnalysis -lExRootAnalysis
 #----------------------------------------------------------------------
 # HepMC
 #----------------------------------------------------------------------
-hepmc_dir = $(SW_DIR)
+hepmc_dir = $(SWDIR)
 CXXFLAGS += -I$(hepmc_dir)/include
 LIBS     += -L$(hepmc_dir)/lib -lHepMC
 
