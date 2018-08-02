@@ -1,0 +1,2 @@
+#define ExPythiaConfig_VERSION_MAJOR @ExPythiaConfig_VERSION_MAJOR@
+#define ExPythiaConfig_VERSION_MINOR @ExPythiaConfig_VERSION_MINOR@

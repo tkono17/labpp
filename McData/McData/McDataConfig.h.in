@@ -1,0 +1,2 @@
+#define McDataConfig_VERSION_MAJOR @McDataConfig_VERSION_MAJOR@
+#define McDataConfig_VERSION_MINOR @McDataConfig_VERSION_MINOR@
