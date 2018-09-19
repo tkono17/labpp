@@ -14,7 +14,7 @@ else
     exit 1
 fi
 
-pythia_cmnd=/nfs/space1/tkohno/work/Phenomenology/files/main82_mod.cmnd
+pythia_cmnd=${SWDIR}/labpp/ExPythia/files/main82_mod.cmnd
 
 # 1. Generate events with mg5_aMC
 output_mg=${output_dir}/mg
@@ -33,7 +33,7 @@ lhe=${output_mg}/Events/run_01/unweighted_events.lhe
 gzip -d ${lhe_gz}
 
 # 3. Run pythia
-pythia_mod82.exe ${pythia_cmnd} ${lhe} ${root_output}
+pythia_mod82b.exe ${pythia_cmnd} ${lhe} ${root_output}
 
 # 4. Print summary
 echo "MG5_aMC process          : ${mg_process}"

@@ -135,7 +135,7 @@ int convertVertexData(const HepMC::GenEvent& mcevent,
     const HepMC::FourVector& v4 = (*p1)->position();
     vtx = new ( (*vertices)[nv]) McVertex(v4.x(), v4.y(), v4.z(), v4.t());
     vtx->setPosition(v4.x(), v4.y(), v4.z(), v4.t());
-    std::cout<< "vtx.z="<< v4.z()<< std::endl;
+    //    std::cout<< "vtx.z="<< v4.z()<< std::endl;
     vtx_id_map[*p1] = nv;
   }
   return 0;
