@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
   // print cross section, errors
   pythia.stat();
 
-  t->Write();
+  t->Write("t");
 
   fout->Write();
   fout->Close();
