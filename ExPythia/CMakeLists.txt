@@ -17,6 +17,7 @@ configure_file(
 
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
+include_directories(../McData)
 
 file(GLOB LIB_SRCS src/[a-zA-Z]*.cxx)
 file(GLOB EXE_SRCS src/main/*.cxx)
@@ -34,12 +35,14 @@ include(${ROOT_USE_FILE})
 list(APPEND LIBS ${ROOT_LIBRARIES})
 
 include_directories(${DESTINATION}/include 
+  ${PROJECT_SOURCE_DIR}/McData
   ${DESTINATION}/MG5_aMC_v2_6_3_2/ExRootAnalysis )
+link_directories($ENV{SWDIR}/lib)
 list(APPEND LIBS ${DESTINATION}/lib/libHepMC.so 
 	    ${DESTINATION}/lib/libfastjet.so
-	    ${DESTINATION}/lib/libpythia8.a
-	    ${DESTINATION}/lib/libMcData.so
+	    ${DESTINATION}/lib/libpythia8.so
 	    ${DESTINATION}/MG5_aMC_v2_6_3_2/ExRootAnalysis/libExRootAnalysis.so
+	    ${PROJECT_BINARY_DIR}/../McData/libMcData.so
   )
 
 #####-------------------------------------------------------------

@@ -8,6 +8,7 @@
 #include "ExRootAnalysis/ExRootClasses.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
+#include "HepMC/Polarization.h"
 #include "HepMC/SimpleVector.h"
 
 
@@ -114,6 +115,9 @@ int convertParticleData(const HepMC::GenEvent& mcevent,
     } else {
       particle->setEndVertexIndex(-1);
     }
+    const HepMC::Polarization& pol = (*p1)->polarization();
+    particle->setPolTheta(pol.theta());
+    particle->setPolPhi(pol.phi());
   }
   return 0;
 }
