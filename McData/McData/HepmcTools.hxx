@@ -20,8 +20,8 @@ void convertEventData(const HepMC::GenEvent& mcevent, int nparticles,
 int convertParticleData(const HepMC::GenEvent& mcevent, 
 			ExRootTreeBranch* branch);
 
-const HepMC::GenParticle* 
-findParticleDecayedAt(const HepMC::GenVertex* vertex, 
+HepMC::GenParticlePtr 
+findParticleDecayedAt(const HepMC::GenVertexPtr vertex, 
 		      const HepMC::GenEvent& mcevent, 
 		      int& particle_index);
 
@@ -33,10 +33,10 @@ void convertEventData(const HepMC::GenEvent& mcevent,
 
 int convertParticleData(const HepMC::GenEvent& mcevent, 
 			TClonesArray* particles, 
-			const std::map<HepMC::GenVertex*, int>& vtx_id_map);
+			const std::map<HepMC::GenVertexPtr, int>& vtx_id_map);
 
 int convertVertexData(const HepMC::GenEvent& mcevent, 
 		      TClonesArray* vertices, 
-		      std::map<HepMC::GenVertex*, int>& vtx_id_map);
+		      std::map<HepMC::GenVertexPtr, int>& vtx_id_map);
 
 #endif // __HepmcTools_hxx__

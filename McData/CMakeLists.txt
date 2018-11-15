@@ -42,9 +42,9 @@ list(APPEND LIBS ${ROOT_LIBRARIES})
 
 include_directories(${DESTINATION}/include 
   ${DESTINATION}/MG5_aMC_v2_6_3_2/ExRootAnalysis )
-list(APPEND LIBS ${DESTINATION}/lib/libHepMC.so 
+list(APPEND LIBS ${DESTINATION}/lib64/libHepMC.so 
 	    ${DESTINATION}/lib/libfastjet.so
-	    ${DESTINATION}/lib/libpythia8.a
+	    ${DESTINATION}/lib/libpythia8.so
 	    ${DESTINATION}/MG5_aMC_v2_6_3_2/ExRootAnalysis/libExRootAnalysis.so
   )
 

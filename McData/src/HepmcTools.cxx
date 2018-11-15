@@ -1,15 +1,16 @@
 /*
   HepmcTools.cxx
 */
+#include <memory>
 #include "McData/HepmcTools.hxx"
 #include "McData/McVertex.hxx"
 #include "McData/McParticle.hxx"
-#include "LHEF.h"
+//#include "LHEF.h"
 #include "ExRootAnalysis/ExRootClasses.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
-#include "HepMC/Polarization.h"
-#include "HepMC/SimpleVector.h"
+#include "HepMC/FourVector.h"
+#include "HepMC/Attribute.h"
 
 
 // #include "HepMC/IO_GenEvent.h"
@@ -21,26 +22,45 @@ void convertEventData(const HepMC::GenEvent& mcevent, int nparticles,
 
   const HepMC::WeightContainer& weights = mcevent.weights();
   double w = 1.0;
+  std::shared_ptr<HepMC::Attribute> attr;
+  std::shared_ptr<HepMC::IntAttribute> attri; 
+  std::shared_ptr<HepMC::DoubleAttribute> attrd;
+
   if (weights.size() > 0) w = weights[0];
   element->Number = mcevent.event_number();
-  //  element->Nparticles = 
-  element->ProcessID = mcevent.signal_process_id();
+
+  attri = mcevent.attribute<HepMC::IntAttribute>("signal_process_id");
+  if (attri.get() != nullptr) {
+    element->ProcessID = attri->value();
+  }
   element->Weight = w;
-  element->ScalePDF = mcevent.event_scale();
-  element->CouplingQED = mcevent.alphaQED();
-  element->CouplingQCD = mcevent.alphaQCD();
+  attrd = mcevent.attribute<HepMC::DoubleAttribute>("event_scale");
+  if (attrd.get() != nullptr) {
+    element->ScalePDF = attrd->value();
+  }
+  attrd = mcevent.attribute<HepMC::DoubleAttribute>("alphaQED");
+  if (attrd.get() != nullptr) {
+    element->CouplingQED = attrd->value();
+  }
+  attrd = mcevent.attribute<HepMC::DoubleAttribute>("alphaQCD");
+  if (attrd.get() != nullptr) {
+    element->CouplingQCD =attrd->value();
+  }
   element->Nparticles = nparticles;
 }
-const HepMC::GenParticle* 
-findParticleDecayedAt(const HepMC::GenVertex* vertex, 
+
+HepMC::GenParticlePtr 
+findParticleDecayedAt(const HepMC::GenVertexPtr vertex, 
 		      const HepMC::GenEvent& mcevent, 
 		      int& particle_index) {
-  const HepMC::GenParticle* parent=0;
+  HepMC::GenParticlePtr parent=0;
   HepMC::GenEvent::particle_const_iterator p1=mcevent.particles_begin();
+
   particle_index=-1;
   int i=0;
+
   for (; p1!=mcevent.particles_end(); ++p1, ++i) {
-    const HepMC::GenVertex* vtx = (*p1)->end_vertex();
+    HepMC::GenVertexPtr vtx = (*p1)->end_vertex();
     if (vtx == vertex) {
       particle_index=i;
       parent = *p1;
@@ -69,9 +89,9 @@ int convertParticleData(const HepMC::GenEvent& mcevent,
     element->Phi = v4.phi();
     element->Eta = v4.eta();
     element->Rapidity = log( (v4.e()+v4.pz())/(v4.e()-v4.pz()) );
-    const HepMC::GenVertex* prodvertex = (*p1)->production_vertex();
+    const HepMC::GenVertexPtr prodvertex = (*p1)->production_vertex();
     int iparent=-1;
-    const HepMC::GenParticle* parent = 
+    const HepMC::GenParticlePtr parent = 
       findParticleDecayedAt(prodvertex, mcevent, iparent);
     element->Mother1 = iparent;
     element->Mother2 = -1;
@@ -88,12 +108,12 @@ void convertEventData(const HepMC::GenEvent& mcevent,
 
 int convertParticleData(const HepMC::GenEvent& mcevent, 
 			TClonesArray* particles, 
-			const std::map<HepMC::GenVertex*, int>& vtx_id_map) {
+			const std::map<HepMC::GenVertexPtr, int>& vtx_id_map) {
   HepMC::GenEvent::particle_const_iterator p1=mcevent.particles_begin();
   int np=0;
   McParticle* particle=0;
-  HepMC::GenVertex* vtx=0;
-  std::map<HepMC::GenVertex*, int>::const_iterator p_v;
+  HepMC::GenVertexPtr vtx=0;
+  std::map<HepMC::GenVertexPtr, int>::const_iterator p_v;
 
   particles->Clear();
   for (; p1!=mcevent.particles_end(); ++p1, ++np) {
@@ -115,16 +135,28 @@ int convertParticleData(const HepMC::GenEvent& mcevent,
     } else {
       particle->setEndVertexIndex(-1);
     }
-    const HepMC::Polarization& pol = (*p1)->polarization();
-    particle->setPolTheta(pol.theta());
-    particle->setPolPhi(pol.phi());
+    //    const HepMC::Polarization& pol = (*p1)->polarization();
+    // particle->setPolTheta(pol.theta());
+    // particle->setPolPhi(pol.phi());
+    std::shared_ptr<HepMC::DoubleAttribute> attrd;
+
+    if ( (attrd = (*p1)->attribute<HepMC::DoubleAttribute>("theta") ) != nullptr) {
+      if (attrd.get() != nullptr) {
+	particle->setPolTheta(attrd->value() );
+      }
+    }
+    if ( (attrd = (*p1)->attribute<HepMC::DoubleAttribute>("phi") ) != nullptr) {
+      if (attrd.get() != nullptr) {
+	particle->setPolPhi(attrd->value() );
+      }
+    }
   }
   return 0;
 }
 
 int convertVertexData(const HepMC::GenEvent& mcevent, 
 		      TClonesArray* vertices, 
-		      std::map<HepMC::GenVertex*, int>& vtx_id_map) {
+		      std::map<HepMC::GenVertexPtr, int>& vtx_id_map) {
   HepMC::GenEvent::vertex_const_iterator p1=mcevent.vertices_begin();
   int nv=0;
   McVertex* vtx=0;

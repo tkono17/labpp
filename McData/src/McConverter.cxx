@@ -6,10 +6,11 @@
 #include "McData/McParticle.hxx"
 #include "McData/McVertex.hxx"
 #include "HepMC/GenEvent.h"
-#include "HepMC/PdfInfo.h"
+#include "HepMC/GenPdfInfo.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
-#include "HepMC/SimpleVector.h"
+#include "HepMC/FourVector.h"
+#include "HepMC/Attribute.h"
 #include "TTree.h"
 #include "TClonesArray.h"
 
@@ -48,14 +49,14 @@ void McConverter::convert(const HepMC::GenEvent& event) {
 
   int i=0;
   for (iv=event.vertices_begin(); iv!=event.vertices_end(); ++iv, ++i) {
-    HepMC::GenVertex* genv = *iv;
+    HepMC::GenVertexPtr genv = *iv;
     McVertex* v = dynamic_cast<McVertex*>(mVertices->ConstructedAt(i));
     convertVertex(*v, *genv);
     vertexmap[genv] = i;
   }
 
   for (i=0, ip=event.particles_begin(); ip!=event.particles_end(); ++ip) {
-    HepMC::GenParticle* genp = *ip;
+    HepMC::GenParticlePtr genp = *ip;
     McParticle* p = dynamic_cast<McParticle*>(mParticles->ConstructedAt(i));
     convertParticle(*p, *genp);
     const HepMC::GenVertex* vtx1 = genp->production_vertex();
@@ -71,14 +72,17 @@ void McConverter::convert(const HepMC::GenEvent& event) {
 }
 
 void McConverter::convertEvent(McEvent& out, const HepMC::GenEvent& in) {
-  out.setSignalProcessID(in.signal_process_id());
-  out.setEventNumber(in.event_number());
+  const HepMC::GenPdfInfoPtr pdf = in.pdf_info();
+  out.setPDFInfo(0, pdf->parton_id[0], pdf->pdf_id[0], pdf->x[0], pdf->xf[0]);
+  out.setPDFInfo(1, pdf->parton_id[1], pdf->pdf_id[1], pdf->x[1], pdf->xf[1]);
+  out.setPDFscale(pdf->scale);
 
-  const HepMC::PdfInfo* pdf = in.pdf_info();
-  out.setPDFInfo(0, pdf->id1(), pdf->pdf_id1(), pdf->x1(), pdf->pdf1());
-  out.setPDFInfo(1, pdf->id2(), pdf->pdf_id2(), pdf->x2(), pdf->pdf2());
-  out.setPDFscale(pdf->scalePDF());
-  out.setSignalProcessID(in.signal_process_id());
+  std::shared_ptr<HepMC::IntAttribute> attri;
+  attri = in.attribute<HepMC::IntAttribute>("signal_process_id");
+  if (attri.get() != nullptr) {
+    out.setSignalProcessID(attri->value());
+  }
+  out.setEventNumber(in.event_number());
 }
 
 void McConverter::convertParticle(McParticle& out, 

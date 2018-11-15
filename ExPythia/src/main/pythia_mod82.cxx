@@ -12,8 +12,7 @@ using namespace Pythia8;
 #include "fastjet/CDFJetCluPlugin.hh"
 //#include "fastjet/D0RunIIConePlugin.hh"
 #include "TFile.h"
-//#include "HepMCInterface.h"
-#include "Pythia8Plugins/HepMC2.h"
+#include "../interfaces/pythia8/include/Pythia8/Pythia8ToHepMC3.h"
 #include "HepMC/GenEvent.h"   
 #include "HepMC/IO_GenEvent.h"
 
@@ -72,7 +71,7 @@ int main(int argc, char* argv[]) {
   // Interface for conversion from Pythia8::Event to HepMC event. 
   std::string hepmc_out="a.hepmc";
   //  HepMC::I_Pythia8 ToHepMC;
-  HepMC::Pythia8ToHepMC ToHepMC;
+  HepMC::Pythia8ToHepMC3 ToHepMC;
   // Specify file where HepMC events will be stored.
   //  HepMC::IO_GenEvent ascii_io(hepmc_out, std::ios::out);
 

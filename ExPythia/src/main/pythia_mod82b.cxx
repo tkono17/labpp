@@ -15,8 +15,8 @@ using namespace Pythia8;
 //#include "fastjet/D0RunIIConePlugin.hh"
 #include "TFile.h"
 //#include "HepMCInterface.h"
-#include "Pythia8Plugins/HepMC2.h"
-#include "HepMC/GenEvent.h"   
+#include "../interfaces/pythia8/include/Pythia8/Pythia8ToHepMC3.h"
+#include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
 
 #include "TFile.h"
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
   // Interface for conversion from Pythia8::Event to HepMC event. 
   std::string hepmc_out="a.hepmc";
   //  HepMC::I_Pythia8 ToHepMC;
-  HepMC::Pythia8ToHepMC ToHepMC;
+  HepMC::Pythia8ToHepMC3 ToHepMC;
   // Specify file where HepMC events will be stored.
   //  HepMC::IO_GenEvent ascii_io(hepmc_out, std::ios::out);
 
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
   TClonesArray* ca_vertices = new TClonesArray("McVertex", 10000);
   TClonesArray* ca_jets = new TClonesArray("Jet", 1000);
   TClonesArray* ca_jet_matching = new TClonesArray("IndexPair", 10000);
-  std::map<HepMC::GenVertex*, int> vtx_id_map;
+  std::map<HepMC::GenVertexPtr, int> vtx_id_map;
 
   //---------------------------------------------------------------
   TTree* t = new TTree("t", "TTree for MC particles ans jets");
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
     
     delete cs;
     t->Fill();
-
+    
     // Write the HepMC event to file. Done with it.
     //    ascii_io << hepmcevt;
 

@@ -20,6 +20,7 @@ include_directories(${PROJECT_BINARY_DIR})
 include_directories(../McData)
 
 file(GLOB LIB_SRCS src/[a-zA-Z]*.cxx)
+list(APPEND LIB_SRCS src/Pythia8ToHepMC3.cc)
 file(GLOB EXE_SRCS src/main/*.cxx)
 # file(GLOB DICT_HEADERS ${PROJECT_NAME}/[a-zA-Z].hxx)
 set(DICT_HEADERS )
@@ -38,7 +39,7 @@ include_directories(${DESTINATION}/include
   ${PROJECT_SOURCE_DIR}/McData
   ${DESTINATION}/MG5_aMC_v2_6_3_2/ExRootAnalysis )
 link_directories($ENV{SWDIR}/lib)
-list(APPEND LIBS ${DESTINATION}/lib/libHepMC.so 
+list(APPEND LIBS ${DESTINATION}/lib64/libHepMC.so 
 	    ${DESTINATION}/lib/libfastjet.so
 	    ${DESTINATION}/lib/libpythia8.so
 	    ${DESTINATION}/MG5_aMC_v2_6_3_2/ExRootAnalysis/libExRootAnalysis.so
