@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 2.8)
 set(PROJECT_NAME McData)
 
@@ -92,6 +93,13 @@ install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 foreach(progexe ${EXES})
   install(TARGETS ${progexe} DESTINATION bin)
 endforeach()
+
+if (${ROOT_VERSION} VERSION_GREATER "6.0")
+   install(FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/libMcDataDict_rdict.pcm
+      ${CMAKE_CURRENT_BINARY_DIR}/libMcDataDict.rootmap
+      DESTINATION lib)
+endif (${ROOT_VERSION} VERSION_GREATER "6.0")
 
 #install(FILES share/${PROJECT_NAME}Config.cmake DESTINATION share/cmake)
 
