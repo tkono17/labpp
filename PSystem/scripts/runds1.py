@@ -5,17 +5,7 @@ import tkinter as tk
 import dss
 import dsgui
 
-if __name__ == '__main__':
-    #----------------------------------------------------------------
-    # Configuration
-    #----------------------------------------------------------------
-    #--------------------------------------
-    # System parameters
-    #--------------------------------------
-    systemX, systemY = 1000, 1000 # System frame
-    boundaryPoints = [ [0, 0], [1000, 0], [1000, 1000], [0, 1000] ]
-    nTypes = 2
-    T = 1
+def globalConfig():
     #--------------------------------------
     # Particle properties
     #--------------------------------------
@@ -29,6 +19,19 @@ if __name__ == '__main__':
     dss.config.particleProperties[1].radius = 15.0
     dss.config.particleProperties[1].T = 2.0
     dss.config.particleProperties[1].color = '#001010'
+
+if __name__ == '__main__':
+    #----------------------------------------------------------------
+    # Configuration
+    #----------------------------------------------------------------
+    globalConfig()
+    #--------------------------------------
+    # System parameters
+    #--------------------------------------
+    systemX, systemY = 1000, 1000 # System frame
+    boundaryPoints = [ [0, 0], [1000, 0], [1000, 1000], [0, 1000] ]
+    nTypes = 2 # Number of particle types
+    T = 1 # Temperature
     #--------------------------------------
     # Graphical parameters
     #--------------------------------------
