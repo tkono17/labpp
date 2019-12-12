@@ -9,17 +9,19 @@ def globalConfig():
     #--------------------------------------
     # Particle properties
     #--------------------------------------
-    dss.config.particleProperties[0].n = 1
+    dss.config.particleProperties[0].n = 10
     dss.config.particleProperties[0].mass = 1.0
-    dss.config.particleProperties[0].radius = 10.0
+    dss.config.particleProperties[0].radius = 1.0
     dss.config.particleProperties[0].T = 1.0
     dss.config.particleProperties[0].color = '#0000ff'
-    dss.config.particleProperties[1].n = 1
+    dss.config.particleProperties[1].n = 10
     dss.config.particleProperties[1].mass = 0.8
-    dss.config.particleProperties[1].radius = 15.0
+    dss.config.particleProperties[1].radius = 1.0
     dss.config.particleProperties[1].T = 2.0
     dss.config.particleProperties[1].color = '#001010'
-
+    dss.config.LJPotential_e = 1.0
+    dss.config.LJPotential_r0 = 100.0
+    
 if __name__ == '__main__':
     #----------------------------------------------------------------
     # Configuration

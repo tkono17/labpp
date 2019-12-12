@@ -29,6 +29,9 @@ class SystemConfig:
         self.state = SystemState.kIdle
         self.startRequest = False
         self.stopRequest = False
+        # Potential
+        self.LJPotential_e = 1.0
+        self.LJPotential_r0 = 20.0
         # Particle properties
         self.particleProperties = [
             ParticleProperty(), ParticleProperty(), ParticleProperty(), 
@@ -46,7 +49,14 @@ class SystemConfig:
 config = SystemConfig()
 
 class Ball:
+    objectIds = []
     def __init__(self, mass, radius, position, momentum, ptype):
+        self.objectId = 0
+        oid = 1
+        if len(Ball.objectIds)>0:
+            oid = Ball.objectIds[-1] + 1
+        Ball.objectIds.append(oid)
+        self.objectId = oid
         self.mass = mass
         self.radius = radius
         self.position = position
@@ -199,6 +209,32 @@ class Collision:
         pass
     pass
 
+class Potential:
+    def __init__(self):
+        pass
+    def forceOnParticle(self, p1):
+        return 0.0
+
+class LJPotential(Potential):
+    def __init__(self, pSystem=None):
+        # U(r) = e*( (r0/r)**12 - (r0/r)**6)
+        # F(r) = -e*( x*(r0/r)**14 - x*(r0/r)**8)
+        self.e = config.LJPotential_e
+        self.r0 = config.LJPotential_r0
+        self.pSystem = pSystem
+    def forceOnParticle(self, p1):
+        ftotal = Vector([0.0, 0.0])
+        fs = []
+        for p in self.pSystem.balls:
+            if p.objectId == p1.objectId: continue
+            x = p1.position - p.position
+            rr = self.r0/x.abs()
+            f = -self.e*(x*math.pow(rr, 14) - x*math.pow(rr, 8) )
+            fs.append(f)
+        for f in fs:
+            ftotal += f
+        return ftotal
+
 class PSystem:
     class EventData:
         def __init__(self, data):
@@ -225,6 +261,9 @@ class PSystem:
         #
         self.outputFilename = 'dss.json'
         self.outputFile = None
+        self.potentials = [
+            LJPotential(self), 
+            ]
         pass
     def runTimeStep(self, dt):
         n = len(self.balls)
@@ -238,9 +277,21 @@ class PSystem:
             for b in self.balls:
                 if not Collision.checkInsideWall(b, w):
                     Collision.updateAtWall(b, w)
+        ib = 0
         for b in self.balls:
+            f = Vector([0.0, 0.0])
+            for potential in self.potentials:
+                f += potential.forceOnParticle(b)
             v = b.velocity()
             b.position = b.position + v*dt
+            if ib == 0:
+                print('v = (%f %f)\n' % (v[0], v[1]) )
+                print('f = (%f %f)\n' % (f[0], f[1]) )
+                print('m, a, v = %f %f %f\n' % (b.mass, f.abs()/b.mass, dt) )
+                print('p=%f, fdt=%f' % (b.momentum.abs(), f.abs()*dt) )
+            ib += 1
+            mom = b.momentum + f*dt
+            b.momentum = mom
         pass
     def update(self):
         self.runTimeStep(self.deltaT)
@@ -327,5 +378,6 @@ class PSystem:
             self.outputFile.close()
             self.outputFile = None
 
+        
 if __name__ == '__main__':
     print('No main program')
