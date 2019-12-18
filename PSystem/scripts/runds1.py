@@ -9,18 +9,22 @@ def globalConfig():
     #--------------------------------------
     # Particle properties
     #--------------------------------------
-    dss.config.particleProperties[0].n = 10
-    dss.config.particleProperties[0].mass = 1.0
-    dss.config.particleProperties[0].radius = 1.0
-    dss.config.particleProperties[0].T = 1.0
-    dss.config.particleProperties[0].color = '#0000ff'
+    eV = dss.config.scaleSet.constants.e
+    dss.config.scaleSet.setFromEMX(E=1.0*eV, M=1.0e+6*eV, X=10.0e-10)
+    dss.config.deltaT = 1.0e-1
+    r0 = 4.0e-10/dss.config.scaleSet.X
+    dss.config.LJPotential_e = 0.2
+    dss.config.LJPotential_r0 = r0
+    dss.config.particleProperties[0].n = 50
+    dss.config.particleProperties[0].mass = 938.0
+    dss.config.particleProperties[0].radius = r0/3.0
+    dss.config.particleProperties[0].T = 300.0
+    dss.config.particleProperties[0].color = '#a3b4c5'
     dss.config.particleProperties[1].n = 10
-    dss.config.particleProperties[1].mass = 0.8
-    dss.config.particleProperties[1].radius = 1.0
-    dss.config.particleProperties[1].T = 2.0
+    dss.config.particleProperties[1].mass = 938.0
+    dss.config.particleProperties[1].radius = r0/3.0
+    dss.config.particleProperties[1].T = 300.0
     dss.config.particleProperties[1].color = '#001010'
-    dss.config.LJPotential_e = 1.0
-    dss.config.LJPotential_r0 = 100.0
     
 if __name__ == '__main__':
     #----------------------------------------------------------------
@@ -30,8 +34,8 @@ if __name__ == '__main__':
     #--------------------------------------
     # System parameters
     #--------------------------------------
-    systemX, systemY = 1000, 1000 # System frame
-    boundaryPoints = [ [0, 0], [1000, 0], [1000, 1000], [0, 1000] ]
+    systemX, systemY = 1.0, 1.0 # System frame
+    boundaryPoints = [ [0, 0], [systemX, 0], [systemX, systemY], [0, systemY] ]
     nTypes = 2 # Number of particle types
     T = 1 # Temperature
     #--------------------------------------

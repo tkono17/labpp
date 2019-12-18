@@ -32,7 +32,7 @@ class GuiPanel:
             self.canvas.create_line(x1, y1, x2, y2, fill='#000000', tag='wall')
     def drawBalls(self):
         self.canvas.delete('ball')
-        rmin = 3.0
+        rmin = 3.0e-3
         for ball in self.ds.balls:
             p = ball.position
             r = ball.radius
@@ -49,7 +49,7 @@ class GuiPanel:
         #     return
         #print('GUI update n=', self.nupdate)
         self.ds.update()
-        self.drawBalls()
+        if (self.nupdate%1)==0: self.drawBalls()
         if dss.config.stopRequest:
             print('Stop running due to StopRequest')
         else:

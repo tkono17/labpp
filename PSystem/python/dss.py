@@ -8,7 +8,52 @@ import random
 import json
 
 class Constants:
-    kB = 1.0
+    def __init__(self):
+        self.e = 1.6e-19
+        self.kB = 1.38064852e-23
+
+    def set(self, scaleSet):
+        self.kB = 1.38064852e-23*(scaleSet.Theta/scaleSet.E)
+
+    def printIt(self):
+        print('-----------')
+        print('  Constants')
+        print('-----------')
+        print('    kB (Boltzmann constant): %3.2e' % self.kB)
+
+class ScaleSet:
+    def __init__(self):
+        e = 1.6e-19
+        self.E = 1.0*e # 1 (eV)
+        self.M = 1.0e+6*e # 1 (MeV)
+        self.X = 200.0e-10 # 100 (Angstrom)
+        self.V = math.sqrt(self.E/self.M)*3.0e+8
+        self.T = self.X/self.V
+        self.A = self.V/self.T
+        self.F = self.E/self.X
+        self.Theta = 1.0
+        self.constants = Constants()
+
+    def setFromEMX(self, E, M, X):
+        self.V = math.sqrt(self.E/self.M)*3.0e+8
+        self.T = self.X/self.V
+        self.A = self.V/self.T
+        self.F = self.E/self.X
+        self.Theta = 1.0
+        self.constants.set(self)
+        
+    def printIt(self):
+        print('Scale set:')
+        print('----------')
+        print('  E (energy)         : %3.2e (J)' % self.E)
+        print('  M (mass)           : %3.2e (kg)' % self.M)
+        print('  X (length)         : %3.2e (m)' % self.X)
+        print('  T (time)           : %3.2e (s)' % self.T)
+        print('  V (velocity)       : %3.2e (m/s)' % self.V)
+        print('  A (acceleration)   : %3.2e (m/s^2)' % self.A)
+        print('  F (force)          : %3.2e (N)' % self.F)
+        print('  Theta (temperature): %3.2e (K)' % self.Theta)
+        self.constants.printIt()
 
 class SystemState:
     kIdle=1
@@ -25,18 +70,29 @@ class ParticleProperty:
 
 class SystemConfig:
     def __init__(self):
-        # System evolution
-        self.state = SystemState.kIdle
-        self.startRequest = False
-        self.stopRequest = False
-        # Potential
+        #-----------------------------------------------------------
+        # Scales
+        #-----------------------------------------------------------
+        self.scaleSet = ScaleSet()
+        self.deltaT = 1.0e-2
+        #-----------------------------------------------------------
+        # System evolution model
+        #-----------------------------------------------------------
         self.LJPotential_e = 1.0
         self.LJPotential_r0 = 20.0
+        #-----------------------------------------------------------
         # Particle properties
+        #-----------------------------------------------------------
         self.particleProperties = [
             ParticleProperty(), ParticleProperty(), ParticleProperty(), 
             ParticleProperty(), ParticleProperty(), 
         ]
+        #-----------------------------------------------------------
+        # System operation (not really configuration data)
+        #-----------------------------------------------------------
+        self.state = SystemState.kIdle
+        self.startRequest = False
+        self.stopRequest = False
 
     def setStartRequest(self, x):
         self.startRequest = x
@@ -63,7 +119,7 @@ class Ball:
         self.momentum = momentum
         self.ptype = ptype
     def energy(self):
-        e = (self.momentum)**2/(2.0*self.mass)
+        e = (self.momentum.abs())**2/(2.0*self.mass)
         return e
     def velocity(self):
         v = self.momentum/self.mass
@@ -215,7 +271,33 @@ class Potential:
     def forceOnParticle(self, p1):
         return 0.0
 
+class CoulombPotential(Potential):
+    """Coulomb potential"""
+    def __init__(self, pSystem=None):
+        # U(r) = k*q1*q2/r
+        # F(r) = k*q1*q2*x/r^2
+        self.pSystem = pSystem
+    def forceOnParticle(self, p1):
+        ftotal = Vector([0.0, 0.0])
+        fs = []
+        r2 = p1.radius
+        ss = config.scaleSet
+        alpha=1/137.0
+        hc=197e-9/(ss.X) # assumes scale E=1 eV
+        for p in self.pSystem.balls:
+            if p.objectId == p1.objectId: continue
+            x = p1.position - p.position
+            r = x.abs()
+            if r < r2:
+                continue
+            f = alpha*hc/(r*r) * x
+            fs.append(f)
+        for f in fs:
+            ftotal += f
+        return ftotal
+
 class LJPotential(Potential):
+    """Lennard-Jones potential"""
     def __init__(self, pSystem=None):
         # U(r) = e*( (r0/r)**12 - (r0/r)**6)
         # F(r) = -e*( x*(r0/r)**14 - x*(r0/r)**8)
@@ -225,11 +307,16 @@ class LJPotential(Potential):
     def forceOnParticle(self, p1):
         ftotal = Vector([0.0, 0.0])
         fs = []
+        r2 = self.r0/3.0
+        r2 = p1.radius
         for p in self.pSystem.balls:
             if p.objectId == p1.objectId: continue
             x = p1.position - p.position
+            r = x.abs()
+            if r < r2:
+                x = (r2/r)*x
             rr = self.r0/x.abs()
-            f = -self.e*(x*math.pow(rr, 14) - x*math.pow(rr, 8) )
+            f = self.e*(12*x*math.pow(rr, 14) - 6*x*math.pow(rr, 8) )
             fs.append(f)
         for f in fs:
             ftotal += f
@@ -251,17 +338,22 @@ class PSystem:
         self.boundaryPoints = boundaryPoints
         self.numberOfTypes = numberOfTypes
         self.numberOfBalls = 0
+        #
+        self.scaleSet = config.scaleSet
+        self.scaleSet.printIt()
+        #
         for i in range(self.numberOfTypes):
             self.numberOfBalls += config.particleProperties[i].n
         self.walls = []
         self.balls = []
         self.T = T
-        self.deltaT = 1.0
+        self.deltaT = config.deltaT
         self.timeStep = 0
         #
         self.outputFilename = 'dss.json'
         self.outputFile = None
         self.potentials = [
+            CoulombPotential(self), 
             LJPotential(self), 
             ]
         pass
@@ -285,9 +377,12 @@ class PSystem:
             v = b.velocity()
             b.position = b.position + v*dt
             if ib == 0:
-                print('v = (%f %f)\n' % (v[0], v[1]) )
-                print('f = (%f %f)\n' % (f[0], f[1]) )
-                print('m, a, v = %f %f %f\n' % (b.mass, f.abs()/b.mass, dt) )
+                print('E = %3.2e' % b.energy() )
+                print('x = (%f %f)' % (b.position[0], b.position[1]) )
+                print('p = (%f %f)' % (b.momentum[0], b.momentum[1]) )
+                print('v = (%f %f)' % (v[0], v[1]) )
+                print('f = (%f %f)' % (f[0], f[1]) )
+                print('m, a, e = %f %f %f' % (b.mass, f.abs()/b.mass, b.energy()) )
                 print('p=%f, fdt=%f' % (b.momentum.abs(), f.abs()*dt) )
             ib += 1
             mom = b.momentum + f*dt
@@ -334,11 +429,13 @@ class PSystem:
 
     def generateMomentum(self, ptype):
         pp = config.particleProperties[ptype]
+        m = pp.mass
         t = pp.T
-        e = Constants.kB*t
+        e = self.scaleSet.constants.kB*t
+        p = math.sqrt(2.0*m*e)
         theta = random.uniform(0, 2.0*math.pi)
-        x1 = e*math.cos(theta)
-        x2 = e*math.sin(theta)
+        x1 = p*math.cos(theta)
+        x2 = p*math.sin(theta)
         return Vector([x1, x2])
     def run(self):
         pass
