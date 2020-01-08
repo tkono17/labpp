@@ -129,12 +129,22 @@ class Ball:
 class Vector:
     def __init__(self, v=[]):
         self.values = v
+    def size(self):
+        return len(self.values)
+    def length(self):
+        return len(self.values)
     def __getitem__(self, i):
         n = len(self.values)
+        print('get item i=', i)
         if i>=0 and i<n:
+            print('return self.values[i]: ', self.values)
             return self.values[i]
         else:
             return None
+    def __setitem__(self, i, v):
+        n = len(self.values)
+        if i>=0 and i<n:
+            self.values[i] = v
     def normalize(self):
         a = self.abs()
         if a > 0:
@@ -158,6 +168,7 @@ class Vector:
         n = len(self.values)
         w = []
         for i in range(n):
+            print('sub i=%d' % i)
             w.append(self.values[i]-v[i])
         return Vector(w)
     def __truediv__(self, a):
@@ -268,7 +279,7 @@ class Collision:
 class Potential:
     def __init__(self):
         pass
-    def forceOnParticle(self, p1):
+    def forceOnParticle(self, p1, balls=[]):
         return 0.0
 
 class CoulombPotential(Potential):
@@ -277,14 +288,14 @@ class CoulombPotential(Potential):
         # U(r) = k*q1*q2/r
         # F(r) = k*q1*q2*x/r^2
         self.pSystem = pSystem
-    def forceOnParticle(self, p1):
+    def forceOnParticle(self, p1, balls):
         ftotal = Vector([0.0, 0.0])
         fs = []
         r2 = p1.radius
         ss = config.scaleSet
         alpha=1/137.0
         hc=197e-9/(ss.X) # assumes scale E=1 eV
-        for p in self.pSystem.balls:
+        for p in balls:
             if p.objectId == p1.objectId: continue
             x = p1.position - p.position
             r = x.abs()
@@ -304,12 +315,12 @@ class LJPotential(Potential):
         self.e = config.LJPotential_e
         self.r0 = config.LJPotential_r0
         self.pSystem = pSystem
-    def forceOnParticle(self, p1):
+    def forceOnParticle(self, p1, balls):
         ftotal = Vector([0.0, 0.0])
         fs = []
         r2 = self.r0/3.0
         r2 = p1.radius
-        for p in self.pSystem.balls:
+        for p in balls:
             if p.objectId == p1.objectId: continue
             x = p1.position - p.position
             r = x.abs()
@@ -357,8 +368,106 @@ class PSystem:
             LJPotential(self), 
             ]
         pass
+    def derivs(self, t, y):
+        n2 = y.size()
+        n = len(self.balls)
+        balls = []
+        iball = 0
+        for b in self.balls:
+            pos = Vector([0]*2)
+            mom = Vector([0]*2)
+            pos[0] = y[iball*n]
+            pos[1] = y[iball*n+1]
+            mom[0] = y[iball*n+2]
+            mom[1] = y[iball*n+3]
+            b2 = Ball(mass=b.mass, radius=b.radius,
+                      position=pos, momentum=mom, ptype=b.ptype)
+            b2.objectId = b.objectId
+            balls.append(b2)
+            iball += 1
+        dydx = Vector([0.0]*n2)
+        iball = 0
+        for b in balls:
+            f = Vector([0.0, 0.0])
+            v = b.velocity()
+            for potential in self.potentials:
+                f += potential.forceOnParticle(b, balls)
+            dydx[iball*n] = v[0]
+            dydx[iball*n+1] = v[1]
+            dydx[iball*n+2] = f[0]
+            dydx[iball*n+3] = f[1]
+        return dydx
+    def solveEOM(self, dt):
+        n = len(self.balls)
+        n2 = n*4
+        y = Vector([0.0]*n2)
+        dydx0 = Vector([0.0]*n2)
+        dydx = Vector([0.0]*n2)
+        y1 = Vector([0.0]*n2)
+        y2 = Vector([0.0]*n2)
+        y3 = Vector([0.0]*n2)
+        y4 = Vector([0.0]*n2)
+        #
+        iball=0
+        for b in self.balls:
+            pos = b.position
+            mom = b.momentum
+            y[iball*n] = pos[0]
+            y[iball*n+1] = pos[1]
+            y[iball*n+2] = mom[0]
+            y[iball*n+3] = mom[1]
+            iball += 1
+        #
+        dt2 = dt/2.0
+        dydx0 = self.derivs(0, y)
+        k1 = Vector([0]*n2)
+        k2 = Vector([0]*n2)
+        k3 = Vector([0]*n2)
+        k4 = Vector([0]*n2)
+        for i in range(n2):
+            k1 = dydx0[i]*dt
+            y1[i] = y[i] + k1/2
+        dydx = self.derivs(dt/2.0, y1)
+        for i in range(n2):
+            k2 = dydx[i]*dt
+            y2[i] = y[i] + k2/2
+        dydx0 = self.derivs(dt/2.0, y2)
+        for i in range(n2):
+            k3 = dydx[i]*dt
+            y3[i] = y[i] + k3
+        dydx0 = self.derivs(dt, y3)
+        for i in range(n2):
+            k4 = dydx[i]*dt
+        k = k1 + 2*(k2+k3) + k4
+        y2 = y[i] + k/6.0
+        iball = 0
+        for b in self.balls:
+            b.position[0] = y2[iball*n]
+            b.position[1] = y2[iball*n+1]
+            b.momentum[0] = y2[iball*n+2]
+            b.momentum[1] = y2[iball*n+3]
+        pass
     def runTimeStep(self, dt):
         n = len(self.balls)
+        ib = 0
+        self.solveEOM(dt)
+        # for b in self.balls:
+        #     f = Vector([0.0, 0.0])
+        #     for potential in self.potentials:
+        #         f += potential.forceOnParticle(b)
+        #     v = b.velocity()
+        #     b.position = b.position + v*dt
+        #     if ib == 0:
+        #         print('E = %3.2e' % b.energy() )
+        #         print('x = (%f %f)' % (b.position[0], b.position[1]) )
+        #         print('p = (%f %f)' % (b.momentum[0], b.momentum[1]) )
+        #         print('v = (%f %f)' % (v[0], v[1]) )
+        #         print('f = (%f %f)' % (f[0], f[1]) )
+        #         print('m, a, e = %f %f %f' % (b.mass, f.abs()/b.mass, b.energy()) )
+        #         print('p=%f, fdt=%f' % (b.momentum.abs(), f.abs()*dt) )
+        #     ib += 1
+        #     mom = b.momentum + f*dt
+        #     b.momentum = mom
         for i in range(n):
             b1 = self.balls[i]
             for j in range(i+1, n):
@@ -369,24 +478,6 @@ class PSystem:
             for b in self.balls:
                 if not Collision.checkInsideWall(b, w):
                     Collision.updateAtWall(b, w)
-        ib = 0
-        for b in self.balls:
-            f = Vector([0.0, 0.0])
-            for potential in self.potentials:
-                f += potential.forceOnParticle(b)
-            v = b.velocity()
-            b.position = b.position + v*dt
-            if ib == 0:
-                print('E = %3.2e' % b.energy() )
-                print('x = (%f %f)' % (b.position[0], b.position[1]) )
-                print('p = (%f %f)' % (b.momentum[0], b.momentum[1]) )
-                print('v = (%f %f)' % (v[0], v[1]) )
-                print('f = (%f %f)' % (f[0], f[1]) )
-                print('m, a, e = %f %f %f' % (b.mass, f.abs()/b.mass, b.energy()) )
-                print('p=%f, fdt=%f' % (b.momentum.abs(), f.abs()*dt) )
-            ib += 1
-            mom = b.momentum + f*dt
-            b.momentum = mom
         pass
     def update(self):
         self.runTimeStep(self.deltaT)
