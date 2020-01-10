@@ -11,15 +11,19 @@ class Constants:
     def __init__(self):
         self.e = 1.6e-19
         self.kB = 1.38064852e-23
+        self.g = 9.8
 
     def set(self, scaleSet):
         self.kB = 1.38064852e-23*(scaleSet.Theta/scaleSet.E)
+        self.g = 9.8/scaleSet.A
 
     def printIt(self):
         print('-----------')
         print('  Constants')
         print('-----------')
+        print('    e (electric charge): %3.2e' % self.e)
         print('    kB (Boltzmann constant): %3.2e' % self.kB)
+        print('    g (gravitational acceleration): %3.2e' % self.g)
 
 class ScaleSet:
     def __init__(self):
@@ -35,6 +39,9 @@ class ScaleSet:
         self.constants = Constants()
 
     def setFromEMX(self, E, M, X):
+        self.E = E
+        self.M = M
+        self.X = X
         self.V = math.sqrt(self.E/self.M)*3.0e+8
         self.T = self.X/self.V
         self.A = self.V/self.T
@@ -102,6 +109,12 @@ class SystemConfig:
         self.stopRequest = x
         self.startRequest = False
 
+    def printIt(self):
+        print('SystemConfig')
+        self.scaleSet.printIt()
+        print('  deltaT = %3.2e' % self.deltaT)
+        print('  LJPotential_e = %3.2e' % self.LJPotential_e)
+        print('  LJPotential_r0 = %3.2e' % self.LJPotential_r0)
 config = SystemConfig()
 
 class Ball:
@@ -135,9 +148,7 @@ class Vector:
         return len(self.values)
     def __getitem__(self, i):
         n = len(self.values)
-        print('get item i=', i)
         if i>=0 and i<n:
-            print('return self.values[i]: ', self.values)
             return self.values[i]
         else:
             return None
@@ -145,6 +156,9 @@ class Vector:
         n = len(self.values)
         if i>=0 and i<n:
             self.values[i] = v
+        else:
+            print('Tryied to set value to invalid element %d while size=%d'\
+                  % (i, n) )
     def normalize(self):
         a = self.abs()
         if a > 0:
@@ -168,7 +182,6 @@ class Vector:
         n = len(self.values)
         w = []
         for i in range(n):
-            print('sub i=%d' % i)
             w.append(self.values[i]-v[i])
         return Vector(w)
     def __truediv__(self, a):
@@ -282,6 +295,18 @@ class Potential:
     def forceOnParticle(self, p1, balls=[]):
         return 0.0
 
+class GravitationalPotential(Potential):
+    """Gravitational potential"""
+    def __init__(self, pSystem=None):
+        # U(r) = -G*m1*m2/r
+        # F(r) = -G*m1*m2*x/r^2
+        self.pSystem = pSystem
+    def forceOnParticle(self, p1, balls):
+        ss = config.scaleSet
+        m = p1.mass
+        g = ss.constants.g
+        f = Vector([0.0, -m*g])
+        return f
 class CoulombPotential(Potential):
     """Coulomb potential"""
     def __init__(self, pSystem=None):
@@ -293,14 +318,13 @@ class CoulombPotential(Potential):
         fs = []
         r2 = p1.radius
         ss = config.scaleSet
-        alpha=1/137.0
+        alpha = 1.0/137.0
         hc=197e-9/(ss.X) # assumes scale E=1 eV
         for p in balls:
             if p.objectId == p1.objectId: continue
             x = p1.position - p.position
             r = x.abs()
-            if r < r2:
-                continue
+            if r < 0.001: continue
             f = alpha*hc/(r*r) * x
             fs.append(f)
         for f in fs:
@@ -324,10 +348,12 @@ class LJPotential(Potential):
             if p.objectId == p1.objectId: continue
             x = p1.position - p.position
             r = x.abs()
-            if r < r2:
+            if r < 0.001: continue
+            if r < r2 and r > 0.001:
                 x = (r2/r)*x
             rr = self.r0/x.abs()
-            f = self.e*(12*x*math.pow(rr, 14) - 6*x*math.pow(rr, 8) )
+            #f = self.e*(12*x*math.pow(rr, 14) - 6*x*math.pow(rr, 8) )
+            f = 12*self.e*(math.pow(rr, 12)-math.pow(rr, 6))/(r*r)*x
             fs.append(f)
         for f in fs:
             ftotal += f
@@ -351,7 +377,6 @@ class PSystem:
         self.numberOfBalls = 0
         #
         self.scaleSet = config.scaleSet
-        self.scaleSet.printIt()
         #
         for i in range(self.numberOfTypes):
             self.numberOfBalls += config.particleProperties[i].n
@@ -364,7 +389,8 @@ class PSystem:
         self.outputFilename = 'dss.json'
         self.outputFile = None
         self.potentials = [
-            CoulombPotential(self), 
+            GravitationalPotential(self), 
+            #CoulombPotential(self), 
             LJPotential(self), 
             ]
         pass
@@ -376,15 +402,15 @@ class PSystem:
         for b in self.balls:
             pos = Vector([0]*2)
             mom = Vector([0]*2)
-            pos[0] = y[iball*n]
-            pos[1] = y[iball*n+1]
-            mom[0] = y[iball*n+2]
-            mom[1] = y[iball*n+3]
+            pos[0] = y[iball*4]
+            pos[1] = y[iball*4+1]
+            mom[0] = y[iball*4+2]
+            mom[1] = y[iball*4+3]
             b2 = Ball(mass=b.mass, radius=b.radius,
                       position=pos, momentum=mom, ptype=b.ptype)
             b2.objectId = b.objectId
             balls.append(b2)
-            iball += 1
+            iball = iball + 1
         dydx = Vector([0.0]*n2)
         iball = 0
         for b in balls:
@@ -392,10 +418,11 @@ class PSystem:
             v = b.velocity()
             for potential in self.potentials:
                 f += potential.forceOnParticle(b, balls)
-            dydx[iball*n] = v[0]
-            dydx[iball*n+1] = v[1]
-            dydx[iball*n+2] = f[0]
-            dydx[iball*n+3] = f[1]
+            dydx[iball*4] = v[0]
+            dydx[iball*4+1] = v[1]
+            dydx[iball*4+2] = f[0]
+            dydx[iball*4+3] = f[1]
+            iball += 1
         return dydx
     def solveEOM(self, dt):
         n = len(self.balls)
@@ -412,10 +439,10 @@ class PSystem:
         for b in self.balls:
             pos = b.position
             mom = b.momentum
-            y[iball*n] = pos[0]
-            y[iball*n+1] = pos[1]
-            y[iball*n+2] = mom[0]
-            y[iball*n+3] = mom[1]
+            y[iball*4] = pos[0]
+            y[iball*4+1] = pos[1]
+            y[iball*4+2] = mom[0]
+            y[iball*4+3] = mom[1]
             iball += 1
         #
         dt2 = dt/2.0
@@ -425,49 +452,38 @@ class PSystem:
         k3 = Vector([0]*n2)
         k4 = Vector([0]*n2)
         for i in range(n2):
-            k1 = dydx0[i]*dt
-            y1[i] = y[i] + k1/2
+            k1[i] = dydx0[i]*dt
+            y1[i] = y[i] + k1[i]/2
         dydx = self.derivs(dt/2.0, y1)
         for i in range(n2):
-            k2 = dydx[i]*dt
-            y2[i] = y[i] + k2/2
-        dydx0 = self.derivs(dt/2.0, y2)
+            k2[i] = dydx[i]*dt
+            y2[i] = y[i] + k2[i]/2
+        dydx = self.derivs(dt/2.0, y2)
         for i in range(n2):
-            k3 = dydx[i]*dt
-            y3[i] = y[i] + k3
-        dydx0 = self.derivs(dt, y3)
+            k3[i] = dydx[i]*dt
+            y3[i] = y[i] + k3[i]
+        dydx = self.derivs(dt, y3)
         for i in range(n2):
-            k4 = dydx[i]*dt
+            k4[i] = dydx[i]*dt
         k = k1 + 2*(k2+k3) + k4
-        y2 = y[i] + k/6.0
+        for i in range(n2):
+            y2[i] = y[i] + k[i]/6.0
         iball = 0
         for b in self.balls:
-            b.position[0] = y2[iball*n]
-            b.position[1] = y2[iball*n+1]
-            b.momentum[0] = y2[iball*n+2]
-            b.momentum[1] = y2[iball*n+3]
+            b.position[0] = y2[iball*4]
+            b.position[1] = y2[iball*4+1]
+            b.momentum[0] = y2[iball*4+2]
+            b.momentum[1] = y2[iball*4+3]
+            #
+            #b.position[1] = y[iball*4+1]
+            #b.momentum[1] = y[iball*4+3]
+            iball += 1
         pass
     def runTimeStep(self, dt):
         n = len(self.balls)
         ib = 0
         self.solveEOM(dt)
-        # for b in self.balls:
-        #     f = Vector([0.0, 0.0])
-        #     for potential in self.potentials:
-        #         f += potential.forceOnParticle(b)
-        #     v = b.velocity()
-        #     b.position = b.position + v*dt
-        #     if ib == 0:
-        #         print('E = %3.2e' % b.energy() )
-        #         print('x = (%f %f)' % (b.position[0], b.position[1]) )
-        #         print('p = (%f %f)' % (b.momentum[0], b.momentum[1]) )
-        #         print('v = (%f %f)' % (v[0], v[1]) )
-        #         print('f = (%f %f)' % (f[0], f[1]) )
-        #         print('m, a, e = %f %f %f' % (b.mass, f.abs()/b.mass, b.energy()) )
-        #         print('p=%f, fdt=%f' % (b.momentum.abs(), f.abs()*dt) )
-        #     ib += 1
-        #     mom = b.momentum + f*dt
-        #     b.momentum = mom
+
         for i in range(n):
             b1 = self.balls[i]
             for j in range(i+1, n):
@@ -489,13 +505,6 @@ class PSystem:
             self.save()
         self.timeStep += 1
 
-    def generateBall(self, particleType=0):
-        pp = config.particleProperties[particleType]
-        pos = self.generatePosition(particleType)
-        mom = self.generateMomentum(particleType)
-        ball = Ball(pp.mass, pp.radius, pos, mom, particleType)
-        return ball
-        
     def setup(self):
         points = self.boundaryPoints
         self.walls = [
@@ -504,19 +513,46 @@ class PSystem:
             Wall(Vector(points[2]), Vector(points[3]) ), 
             Wall(Vector(points[3]), Vector(points[0]) )
         ]
+        pass
+
+    def generateBall(self, particleType=0):
+        pp = config.particleProperties[particleType]
+        pos = self.generatePosition(particleType)
+        mom = self.generateMomentum(particleType)
+        ball = Ball(pp.mass, pp.radius, pos, mom, particleType)
+        return ball
+        
+    def generateBalls(self):
+        self.balls = []
         for itype in range(self.numberOfTypes):
             for i in range(config.particleProperties[itype].n):
                 ball = self.generateBall(itype)
                 self.balls.append(ball)
         print('Created %d balls' % len(self.balls) )
-        pass
+
     def generatePosition(self, ptype):
         pp = config.particleProperties[ptype]
         r = pp.radius
         sx, sy=(self.sx, self.sy)
-        x1 = random.uniform(r, sx-r)
-        x2 = random.uniform(r, sy-r)
-        return Vector([x1, x2])
+        rsep = config.LJPotential_r0*0.9
+        pos = Vector([0, 0])
+        done=False
+        while (not done):
+            x1 = random.uniform(r, sx-r)
+            x2 = random.uniform(r, sy-r)
+            pos = Vector([x1, x2])
+            done = True
+            for b in self.balls:
+                dx = b.position - pos
+                print('dx = %f, rsep = %f' % (dx.abs(), rsep) )
+                if dx.abs() < rsep:
+                    print('Try generating the position again')
+                    done = False
+                    break
+                else:
+                    print('Generated position looks good')
+        print('Add %d-th ball' % len(self.balls) )
+        return pos
 
     def generateMomentum(self, ptype):
         pp = config.particleProperties[ptype]

@@ -18,9 +18,12 @@ class GuiPanel:
     def buttonInitClicked(self):
         print('Button[Init] clicked')
         print('Number of walls: %d' % len(self.ds.walls) )
+        self.generateBalls()
         self.drawWalls()
         self.drawBalls()
 
+    def generateBalls(self):
+        self.ds.generateBalls()
     def drawWalls(self):
         self.canvas.delete('wall')
         for wall in self.ds.walls:
