@@ -526,6 +526,7 @@ class PSystem:
         if self.timeStep >= 100:
             m = int(math.log10(self.timeStep) )
             m = 10**m
+            m = 10
         if self.timeStep<100 or (self.timeStep%m)==0:
             self.save()
         self.timeStep += 1
