@@ -292,6 +292,8 @@ class Collision:
 class Potential:
     def __init__(self):
         pass
+    def preset(self, balls):
+        pass
     def forceOnParticle(self, p1, balls=[]):
         return 0.0
 
@@ -339,6 +341,20 @@ class LJPotential(Potential):
         self.e = config.LJPotential_e
         self.r0 = config.LJPotential_r0
         self.pSystem = pSystem
+        self.neighbors = []
+    def preset(self, balls):
+        self.neighbors = []
+        for b1 in balls:
+            v = []
+            for b2 in balls:
+                if b2.objectId == b1.objectId: continue
+                x = b1.position - b2.position
+                r = x.abs()
+                if r < 0.001: continue
+                if (r*config.scaleSet.X)<20.0E-10:
+                    v.append(b2)
+            self.neighbors.append(v)
+        pass
     def forceOnParticle(self, p1, balls):
         ftotal = Vector([0.0, 0.0])
         fs = []
@@ -412,12 +428,21 @@ class PSystem:
             balls.append(b2)
             iball = iball + 1
         dydx = Vector([0.0]*n2)
+        for potential in self.potentials:
+            potential.preset(balls)
         iball = 0
         for b in balls:
             f = Vector([0.0, 0.0])
             v = b.velocity()
             for potential in self.potentials:
-                f += potential.forceOnParticle(b, balls)
+                pnballs = None
+                if hasattr(potential, 'neighbors'):
+                    pnballs = potential.neighbors[iball]
+                if pnballs!=None:
+                    neighboringBalls = pnballs
+                else:
+                    neighboringBalls = balls
+                f += potential.forceOnParticle(b, neighboringBalls)
             dydx[iball*4] = v[0]
             dydx[iball*4+1] = v[1]
             dydx[iball*4+2] = f[0]
@@ -522,13 +547,40 @@ class PSystem:
         ball = Ball(pp.mass, pp.radius, pos, mom, particleType)
         return ball
         
+    def generateBall2(self, i, n, particleType=0):
+        pp = config.particleProperties[particleType]
+        pos = self.generatePosition2(particleType, i, n)
+        mom = self.generateMomentum(particleType)
+        ball = Ball(pp.mass, pp.radius, pos, mom, particleType)
+        return ball
+        
     def generateBalls(self):
         self.balls = []
+        iball = 0
+        nballs = 0
+        for itype in range(self.numberOfTypes):
+            nballs += config.particleProperties[itype].n
         for itype in range(self.numberOfTypes):
             for i in range(config.particleProperties[itype].n):
-                ball = self.generateBall(itype)
+                ball = self.generateBall2(iball, nballs, itype)
                 self.balls.append(ball)
+                iball += 1
         print('Created %d balls' % len(self.balls) )
+
+    def generatePosition2(self, ptype, i, n):
+        pp = config.particleProperties[ptype]
+        r = pp.radius
+        sx, sy=(self.sx, self.sy)
+        pos = Vector([0, 0])
+        nrow = math.ceil(math.sqrt(n) )
+        ncol = nrow
+        dx = sx/ncol
+        dy = sy/nrow
+        irow = math.floor(i/ncol)
+        icol = math.floor(i%ncol)
+        pos[0] = (icol+0.5)*dx
+        pos[1] = (irow+0.5)*dy
+        return pos
 
     def generatePosition(self, ptype):
         pp = config.particleProperties[ptype]
