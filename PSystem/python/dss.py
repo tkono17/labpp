@@ -292,9 +292,11 @@ class Collision:
 class Potential:
     def __init__(self):
         pass
-    def preset(self, balls):
+    def presetNeighbors(self, balls):
         pass
-    def forceOnParticle(self, p1, balls=[]):
+    def energy(self, p, iball):
+        return 0.0
+    def forceOnParticle(self, p1, balls):
         return 0.0
 
 class GravitationalPotential(Potential):
@@ -342,7 +344,7 @@ class LJPotential(Potential):
         self.r0 = config.LJPotential_r0
         self.pSystem = pSystem
         self.neighbors = []
-    def preset(self, balls):
+    def presetNeighbors(self, balls):
         self.neighbors = []
         for b1 in balls:
             v = []
@@ -351,10 +353,19 @@ class LJPotential(Potential):
                 x = b1.position - b2.position
                 r = x.abs()
                 if r < 0.001: continue
-                if (r*config.scaleSet.X)<20.0E-10:
+                if r<(self.r0*3):
                     v.append(b2)
             self.neighbors.append(v)
         pass
+    def energy(self, p, iball):
+        e = 0.0
+        #print('Energy of iball=%d neighbors=%d' % (iball, len(self.neighbors[iball]) ) )
+        for p2 in self.neighbors[iball]:
+            x = p.position - p2.position
+            r = x.abs()
+            rr = self.r0/r
+            e += self.e*(math.pow(rr, 12)-2.0*math.pow(rr, 6) )
+        return e
     def forceOnParticle(self, p1, balls):
         ftotal = Vector([0.0, 0.0])
         fs = []
@@ -402,6 +413,8 @@ class PSystem:
         self.deltaT = config.deltaT
         self.timeStep = 0
         #
+        self.updateMethod = 0
+        self.sigmaX = config.LJPotential_r0/10
         self.outputFilename = 'dss.json'
         self.outputFile = None
         self.potentials = [
@@ -429,7 +442,7 @@ class PSystem:
             iball = iball + 1
         dydx = Vector([0.0]*n2)
         for potential in self.potentials:
-            potential.preset(balls)
+            potential.presetNeighbors(balls)
         iball = 0
         for b in balls:
             f = Vector([0.0, 0.0])
@@ -520,14 +533,65 @@ class PSystem:
                 if not Collision.checkInsideWall(b, w):
                     Collision.updateAtWall(b, w)
         pass
+    def selectUpdateMethod(self, methodName):
+        self.updateMethod = 0
+        if methodName == 'MC':
+            self.updateMethod = 1
+    def runMC(self):
+        n = len(self.balls)
+        iball = random.randint(0, n-1)
+        p = self.balls[iball]
+        pos = p.position
+        x1, y1 = pos[0], pos[1]
+        x2 = random.gauss(pos[0], self.sigmaX)
+        y2 = random.gauss(pos[1], self.sigmaX)
+        kT = self.scaleSet.constants.kB*self.T
+        e = 0.0
+        e2 = 0.0
+        for potential in self.potentials:
+            potential.presetNeighbors(self.balls)
+            e += potential.energy(p, iball)
+        pos[0] = x2
+        pos[1] = y2
+        for potential in self.potentials:
+            potential.presetNeighbors(self.balls)
+            e2 += potential.energy(p, iball)
+        dE = e2 - e
+        #print('dE=%f kT=%f' % (dE, kT) )
+        ok = False
+        if dE<0.0:
+            ok = True
+        else:
+            #print('calculate r=exp(%f)' % (-dE/kT) )
+            r = math.exp(-dE/kT)
+            s = random.uniform(0, 1.0)
+            if s<r:
+                ok = True
+        if ok:
+            # New state has lower energy
+            # print('Jump to new state, dE=%f' % dE)
+            pass
+        else:
+            pos[0], pos[1] = x1, y1
+        #print('done runMC')
     def update(self):
-        self.runTimeStep(self.deltaT)
+        if self.updateMethod == 1:
+            self.runMC()
+            pass
+        else:
+            self.runTimeStep(self.deltaT)
+        saveEvent = False
         m = 1
         if self.timeStep >= 100:
-            m = int(math.log10(self.timeStep) )
-            m = 10**m
-            m = 10
-        if self.timeStep<100 or (self.timeStep%m)==0:
+            if self.saveMode==0:
+                m = int(math.log10(self.timeStep) )
+                m = 10**m
+                if (self.timeStep%m)==0:
+                    saveEvent = True
+            elif self.saveMode>0:
+                if (self.timeStep%self.saveMode)==0:
+                    saveEvent = True
+        if saveEvent:
             self.save()
         self.timeStep += 1
 
