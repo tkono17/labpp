@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     ds = dss.PSystem(systemX, systemY, boundaryPoints, nTypes, T)
     # Set options
-    ds.outputFileName = args.outputFile
+    ds.outputFilename = args.outputFile
     ds.saveMode = args.saveMode
     #
     ds.setup()

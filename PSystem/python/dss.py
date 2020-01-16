@@ -363,6 +363,8 @@ class LJPotential(Potential):
         for p2 in self.neighbors[iball]:
             x = p.position - p2.position
             r = x.abs()
+            if r < 0.01*self.r0:
+                r = 0.01*self.r0
             rr = self.r0/r
             e += self.e*(math.pow(rr, 12)-2.0*math.pow(rr, 6) )
         return e
@@ -414,7 +416,7 @@ class PSystem:
         self.timeStep = 0
         #
         self.updateMethod = 0
-        self.sigmaX = config.LJPotential_r0/10
+        self.sigmaX = config.LJPotential_r0/2
         self.outputFilename = 'dss.json'
         self.outputFile = None
         self.potentials = [
