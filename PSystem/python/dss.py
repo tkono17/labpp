@@ -87,6 +87,7 @@ class SystemConfig:
         #-----------------------------------------------------------
         self.LJPotential_e = 1.0
         self.LJPotential_r0 = 20.0
+        self.sigmaX = 0.1
         #-----------------------------------------------------------
         # Particle properties
         #-----------------------------------------------------------
@@ -416,7 +417,7 @@ class PSystem:
         self.timeStep = 0
         #
         self.updateMethod = 0
-        self.sigmaX = config.LJPotential_r0
+        self.sigmaX = config.sigmaX
         self.outputFilename = 'dss.json'
         self.outputFile = None
         self.potentials = [
@@ -549,14 +550,14 @@ class PSystem:
         y2 = random.gauss(pos[1], self.sigmaX)
         xlimit = self.sx - p.radius
         ylimit = self.sy - p.radius
-        if x1 < p.radius:
-            x1 = p.radius
-        elif x1 > xlimit:
-            x1 = xlimit
-        if y1 < p.radius:
-            y1 = p.radius
-        elif y1 > ylimit:
-            y1 = ylimit
+        if x2 < p.radius:
+            x2 = p.radius
+        elif x2 > xlimit:
+            x2 = xlimit
+        if y2 < p.radius:
+            y2 = p.radius
+        elif y2 > ylimit:
+            y2 = ylimit
         kT = self.scaleSet.constants.kB*self.T
         e = 0.0
         e2 = 0.0

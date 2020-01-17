@@ -17,6 +17,7 @@ def globalConfig():
     r0 = 4.0e-10/dss.config.scaleSet.X
     dss.config.LJPotential_e = 0.2
     dss.config.LJPotential_r0 = r0
+    dss.config.sigmaX = 2*r0
     dss.config.particleProperties[0].n = 300
     dss.config.particleProperties[0].mass = 938.0
     dss.config.particleProperties[0].radius = r0/4.0
