@@ -416,7 +416,7 @@ class PSystem:
         self.timeStep = 0
         #
         self.updateMethod = 0
-        self.sigmaX = config.LJPotential_r0/2
+        self.sigmaX = config.LJPotential_r0
         self.outputFilename = 'dss.json'
         self.outputFile = None
         self.potentials = [
@@ -547,6 +547,16 @@ class PSystem:
         x1, y1 = pos[0], pos[1]
         x2 = random.gauss(pos[0], self.sigmaX)
         y2 = random.gauss(pos[1], self.sigmaX)
+        xlimit = self.sx - p.radius
+        ylimit = self.sy - p.radius
+        if x1 < p.radius:
+            x1 = p.radius
+        elif x1 > xlimit:
+            x1 = xlimit
+        if y1 < p.radius:
+            y1 = p.radius
+        elif y1 > ylimit:
+            y1 = ylimit
         kT = self.scaleSet.constants.kB*self.T
         e = 0.0
         e2 = 0.0
