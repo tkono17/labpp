@@ -88,6 +88,7 @@ class SystemConfig:
         self.LJPotential_e = 1.0
         self.LJPotential_r0 = 20.0
         self.sigmaX = 0.1
+        self.replayInterval = 100
         #-----------------------------------------------------------
         # Particle properties
         #-----------------------------------------------------------
@@ -595,7 +596,7 @@ class PSystem:
             self.runTimeStep(self.deltaT)
         saveEvent = False
         m = 1
-        if self.timeStep >= 100:
+        if self.timeStep > 100:
             if self.saveMode==0:
                 m = int(math.log10(self.timeStep) )
                 m = 10**m
@@ -604,6 +605,8 @@ class PSystem:
             elif self.saveMode>0:
                 if (self.timeStep%self.saveMode)==0:
                     saveEvent = True
+        else:
+            saveEvent = True
         if saveEvent:
             self.save()
         self.timeStep += 1
@@ -697,14 +700,16 @@ class PSystem:
     def run(self):
         pass
     def openFile(self):
-        if self.outputFile == None:
+        if hasattr(self, 'outputFilename') and self.outputFile == None:
             self.outputFile = open(self.outputFilename, 'w')
             self.outputFile.write('{\n')
             self.outputFile.write('  "events": [\n')
             self.iEvent = 0
             print('DSS open output file: %s' % self.outputFilename)
+        else:
+            self.outputFile = None
     def save(self):
-        if self.outputFile != None:
+        if not hasattr(self, 'outputFile') or self.outputFile != None:
             v = []
             for b in self.balls:
                 bdata = {
@@ -725,12 +730,29 @@ class PSystem:
             print('Save event data (time=%d)' % self.timeStep)
             self.iEvent += 1
     def closeFile(self):
-        if self.outputFile != None:
+        if hasattr(self, 'outputFile') and self.outputFile != None:
             print('DSS close output file: %s' % self.outputFilename)
             self.outputFile.write(']\n')
             self.outputFile.write('}\n')
             self.outputFile.close()
             self.outputFile = None
+
+class ReplaySystem(PSystem):
+    def __init__(self, sx, sy, boundaryPoints, numberOfTypes, T):
+        self.sx = sx
+        self.sy = sy
+        self.boundaryPoints = boundaryPoints
+        self.numberOfTypes = numberOfTypes
+        self.T = T
+        pass
+    def setBalls(self, jBalls):
+        self.balls = []
+        mass, radius, ptype = 0, 0, 0
+        for jb in jBalls:
+            b = Ball(jb['mass'], jb['radius'], jb['position'], jb['momentum'], jb['ptype'])
+            self.balls.append(b)
+    def update(self):
+        pass
 
         
 if __name__ == '__main__':

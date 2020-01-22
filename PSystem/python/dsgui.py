@@ -9,6 +9,7 @@ class GuiPanel:
         self.frameX = frameX
         self.frameY = frameY
         self.ds = ds
+        self.replayEventNumber = -1
         pass
 
     def buttonQuitClicked(self):
@@ -52,12 +53,32 @@ class GuiPanel:
         #     return
         #print('GUI update n=', self.nupdate)
         self.ds.update()
-        if (self.nupdate%1)==0: self.drawBalls()
+        if (self.nupdate%1)==0:
+            self.drawBalls()
         if dss.config.stopRequest:
             print('Stop running due to StopRequest')
         else:
             self.canvas.after(10, self.update)
             self.nupdate += 1
+
+    def replay(self):
+        if self.replayEventNumber < 0:
+            self.drawWalls()
+            self.replayEventNumber = 0
+        if self.replayEventNumber >= len(self.jsonEvents):
+            return
+        e = self.jsonEvents[self.replayEventNumber]
+        t = e['timeStep']
+        print('  Replay timeStep=%d' % t)
+        balls = e['balls']
+        self.ds.setBalls(balls)
+        self.drawBalls()
+        #
+        self.replayEventNumber += 1
+        interval = 100
+        if hasattr(dss.config, 'replayInterval'):
+            interval = dss.config.replayInterval
+        self.canvas.after(interval, self.replay)
 
     def buttonStartClicked(self):
         print('Button[Start] clicked')
@@ -76,6 +97,12 @@ class GuiPanel:
     def buttonStopClicked(self):
         print('Button[Stop] clicked')
         dss.config.setStopRequest(True)
+
+    def buttonReplayClicked(self):
+        print('Button[Replay] clicked')
+        dss.config.setStopRequest(True)
+        self.canvas.after(50, self.replay)
+        print('Replay has finished')
 
     def buildGui(self):
         sideX = 200
@@ -124,7 +151,15 @@ class GuiPanel:
                                     command=self.buttonStopClicked)
         self.buttonStop.place(x=20, y=250)
         #
+        self.buttonReplay = tk.Button(master=self.root, 
+                                      text='Replay', 
+                                      foreground='#0000ff', 
+                                      command=self.buttonReplayClicked)
+        self.buttonReplay.place(x=20, y=250)
+        #
+    def startLoop(self):
         self.root.mainloop()
+        self.replayEventNumber = -1
 
     def systemToGui(self, pos):
         marginX, marginY=10, 10

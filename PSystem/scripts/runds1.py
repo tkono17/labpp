@@ -6,6 +6,8 @@ import dss
 import dsgui
 import argparse
 import importlib
+import time
+import json
 
 def globalConfig():
     #--------------------------------------
@@ -46,9 +48,9 @@ def parseArgs():
     parser.add_argument('-n', '--number-of-steps', dest='numberOfSteps', 
                         action='store', type=int, default=0, 
                         help='Number of steps')
-    parser.add_argument('-b', '--batch-mode', dest='batchMode', 
-                        action='store_true', default=False, 
-                        help='Run in batch mode')
+    parser.add_argument('-m', '--run-mode', dest='runMode', 
+                        action='store', type=str, default='gui', 
+                        help='Run mode. gui|batch|replay [gui]')
     parser.add_argument('-s', '--save-mode', dest='saveMode', 
                         action='store', type=int, default=0, 
                         help='Specify how often one wants to save data. A positive number means to save results every N steps. 0: default. The first 100 steps are always saved.')
@@ -62,11 +64,13 @@ def parseArgs():
     return args
 
 def showExample():
+    prog=os.path.basename(sys.argv[0])
     print('Examples:')
-    print('  > %s -o out.json' % (sys.argv[0]) )
-    print('  > %s -b -c config.py -o out.json -s 10' % (sys.argv[0]) )
-    print('  > %s -c config.py -o out.json -s 10 -u MC -n 100' % (sys.argv[0]) )
-    print('  > %s -c config.py -o out.json -s 10 -u runTimeStep' % (sys.argv[0]) )
+    print('  > %s -o out.json' % (prog) )
+    print('  > %s -c config.py -o out.json -s 10 -u MC -m batch -n 100' % (prog) )
+    print('  > %s -c config.py -o out.json -s 10 -u runTimeStep' % (prog) )
+    print('  > %s -m replay -i in.json' % (prog) )
+    print('  > %s -b -c config.py -o out.json -s 10' % (prog) )
 
 if __name__ == '__main__':
     #----------------------------------------------------------------
@@ -85,10 +89,8 @@ if __name__ == '__main__':
         if fdir=='':
             fdir='.'
         sys.path.append(fdir)
-        print(dir() )
         mname = fname.replace('.py', '')
         myConfig = importlib.import_module(mname)
-        print(dir() )
         exec('myConfig.globalConfig()')
         print('Overwrite globalConfig from %s' % args.configFile)
 
@@ -114,17 +116,31 @@ if __name__ == '__main__':
     ds.outputFilename = args.outputFile
     ds.saveMode = args.saveMode
     #
-    ds.setup()
-    dss.config.printIt()
-    ds.openFile()
-    ds.selectUpdateMethod(args.updateMethod)
-    #
-    if args.replay:
+    if args.runMode == 'replay':
         print('Replay from the file %s' % args.inputFile)
-        print('  ==> Not implemented yet')
-        sys.exit(-1)
+        if not os.path.exists(args.inputFile):
+            print('  The input file is mandatory but does not exist: %s' %\
+                  args.inputFile)
+            sys.exit(-1)
+        print('Recreate RelaySystem')
+        ds = dss.ReplaySystem(systemX, systemY, boundaryPoints, nTypes, T)
+        ds.setup()
+        panel = dsgui.GuiPanel(frameX, frameY, ds)
+        panel.buildGui()
+        #
+        fin = open(args.inputFile, 'r')
+        print('Reading data from JSON file from %s .....' % args.inputFile)
+        data = json.loads(fin.read() )
+        print('Loaded json data from')
+        panel.jsonEvents = data['events']
+        panel.startLoop()
         pass
-    elif args.batchMode:
+    elif args.runMode == 'batch':
+        ds.setup()
+        dss.config.printIt()
+        ds.openFile()
+        ds.selectUpdateMethod(args.updateMethod)
+        #
         ds.generateBalls()
         i=0
         while True:
@@ -132,8 +148,22 @@ if __name__ == '__main__':
             i += 1
             if i >= args.numberOfSteps:
                 break
-    else:
+    elif args.runMode == 'gui':
+        ds.setup()
+        dss.config.printIt()
+        ds.openFile()
+        ds.selectUpdateMethod(args.updateMethod)
         panel = dsgui.GuiPanel(frameX, frameY, ds)
         panel.buildGui()
+        panel.startLoop()
+    else:
+        print('Unknown run mode %s. Run in GUI mode' % args.runMode)
+        ds.setup()
+        dss.config.printIt()
+        ds.openFile()
+        ds.selectUpdateMethod(args.updateMethod)
+        panel = dsgui.GuiPanel(frameX, frameY, ds)
+        panel.buildGui()
+        panel.startLoop()
     ds.closeFile()
 
