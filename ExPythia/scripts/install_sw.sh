@@ -18,12 +18,17 @@ devsrc_dir=${dev_dir}/sources
 #   Set 'yes' to install, otherwise leave it empty or set string other 
 #   than 'yes'.
 #---------------------------------------------------------------------
-install_lhapdf=yes
-install_fastjet=yes
-install_hepmc=yes
+install_lhapdf=
+install_fastjet=
+install_hepmc=
 install_pythia8=yes
 install_madgraph=
 #---------------------------------------------------------------------
+
+if [[ $ROOTSYS == "" ]]; then
+    echo "Make sure ROOT is not available to install event generator software."
+    exit 1
+fi
 
 dir0=$(pwd)
 mkdir -p ${sw_dir}
@@ -50,6 +55,7 @@ if [[ ${install_lhapdf} == "yes" ]]; then
     cd -
 fi
 
+cd ${devsrc_dir}
 # Fastjet
 #url=http://www.fastjet.fr/repo/fastjet-3.3.1.tar.gz
 url=http://fastjet.fr/repo/fastjet-3.3.4.tar.gz
@@ -67,6 +73,7 @@ if [[ ${install_fastjet} == "yes" ]]; then
     cd -
 fi
 
+cd ${devsrc_dir}
 # HepMC
 #url=http://lcgapp.cern.ch/project/simu/HepMC/download/HepMC-2.06.08.tar.gz
 #url=http://hepmc.web.cern.ch/hepmc/releases/hepmc3.0.0.tgz
@@ -92,6 +99,7 @@ if [[ ${install_hepmc} == "yes" ]]; then
     unset sname
 fi
 
+cd ${devsrc_dir}
 # MadGraph MC@NLO
 url=https://launchpad.net/mg5amcnlo/2.0/2.6.x/+download/MG5_aMC_v2.6.3.2.tar.gz
 if [[ ${install_madgraph} == "yes" ]]; then
@@ -110,6 +118,7 @@ EOF
     mv ${pname} ${sw_dir}
 fi
 
+cd ${devsrc_dir}
 # Pythia8
 url=http://home.thep.lu.se/~torbjorn/pythia8/pythia8235.tgz
 if [[ ${install_pythia8} == "yes" ]]; then
@@ -124,7 +133,7 @@ if [[ ${install_pythia8} == "yes" ]]; then
 	--enable-shared \
 	--with-lhapdf6=${sw_dir} \
 	--with-fastjet3=${sw_dir} \
-	--with-hepmc2=${sw_dir} \
+	--with-hepmc3=${sw_dir} \
 	--with-root=${ROOTSYS}
     make
     make install
