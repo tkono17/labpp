@@ -20,8 +20,8 @@ devsrc_dir=${dev_dir}/sources
 #---------------------------------------------------------------------
 install_lhapdf=
 install_fastjet=
-install_hepmc=
-install_pythia8=yes
+install_hepmc=yes
+install_pythia8=
 install_madgraph=
 #---------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ if [[ ${install_hepmc} == "yes" ]]; then
     mkdir -p ${bname}
     cd ${bname}
     cmake -DCMAKE_INSTALL_PREFIX=${sw_dir} ${sname} \
-	-Dmomentum:STRING=GEV -Dlength:STRING=MM
+	-D momentum:STRING=GEV -Dlength:STRING=MM
     ./configure --prefix=${sw_dir} 
     make
     make install
@@ -101,7 +101,7 @@ fi
 
 cd ${devsrc_dir}
 # MadGraph MC@NLO
-url=https://launchpad.net/mg5amcnlo/2.0/2.6.x/+download/MG5_aMC_v2.6.3.2.tar.gz
+url=https://launchpad.net/mg5amcnlo/2.0/2.8.x/+download/MG5_aMC_v2.8.0.tar.gz
 if [[ ${install_madgraph} == "yes" ]]; then
     fname=$(basename ${url})
     pname=$(echo ${fname} | sed "s/\.tar\.gz//g" | sed "s/\./_/g")
@@ -120,7 +120,7 @@ fi
 
 cd ${devsrc_dir}
 # Pythia8
-url=http://home.thep.lu.se/~torbjorn/pythia8/pythia8235.tgz
+url=http://home.thep.lu.se/~torbjorn/pythia8/pythia8303.tgz
 if [[ ${install_pythia8} == "yes" ]]; then
     fname=$(basename ${url})
     pname=$(echo ${fname} | sed "s/\.tgz//g")
@@ -130,7 +130,6 @@ if [[ ${install_pythia8} == "yes" ]]; then
     tar xvfz ${fname}
     cd ${pname}
     ./configure --prefix=${sw_dir} \
-	--enable-shared \
 	--with-lhapdf6=${sw_dir} \
 	--with-fastjet3=${sw_dir} \
 	--with-hepmc3=${sw_dir} \
@@ -149,3 +148,5 @@ unset devsrc_dir
 unset fname
 unset pname
 
+echo "Installing SW done"
+date
