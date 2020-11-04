@@ -144,13 +144,21 @@ int convertParticleData(const HepMC3::GenEvent& mcevent,
     // particle->setPolTheta(pol.theta());
     // particle->setPolPhi(pol.phi());
     std::shared_ptr<HepMC3::DoubleAttribute> attrd;
-
-    if ( (attrd = p1->attribute<HepMC3::DoubleAttribute>("theta") ) != nullptr) {
+    // for (auto att: p1->attribute_names()) {
+    //   std::cout << "att: " << att << std::endl;
+    // }
+    if ( (attrd = p1->attribute<HepMC3::DoubleAttribute>("spin") ) != nullptr) {
+      if (attrd.get() != nullptr) {
+	particle->setHelicity(attrd->value() );
+	//	std::cout << "spin: " << attrd->value() << std::endl;
+      }
+    }
+    if ( (attrd = p1->attribute<HepMC3::DoubleAttribute>("polTheta") ) != nullptr) {
       if (attrd.get() != nullptr) {
 	particle->setPolTheta(attrd->value() );
       }
     }
-    if ( (attrd = p1->attribute<HepMC3::DoubleAttribute>("phi") ) != nullptr) {
+    if ( (attrd = p1->attribute<HepMC3::DoubleAttribute>("polPhi") ) != nullptr) {
       if (attrd.get() != nullptr) {
 	particle->setPolPhi(attrd->value() );
       }

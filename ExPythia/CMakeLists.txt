@@ -90,6 +90,6 @@ foreach(progexe ${EXES})
   install(TARGETS ${progexe} DESTINATION bin)
 endforeach()
 
-install(PROGRAM scripts/run_mgpj.sh DESTINATION bin)
+install(PROGRAMS scripts/run_mgpj.sh DESTINATION bin)
 #install(FILES share/${PROJECT_NAME}Config.cmake DESTINATION share/cmake)
 

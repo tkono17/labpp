@@ -20,8 +20,8 @@ devsrc_dir=${dev_dir}/sources
 #---------------------------------------------------------------------
 install_lhapdf=
 install_fastjet=
-install_hepmc=yes
-install_pythia8=
+install_hepmc=
+install_pythia8=yes
 install_madgraph=
 #---------------------------------------------------------------------
 
@@ -136,6 +136,7 @@ if [[ ${install_pythia8} == "yes" ]]; then
 	--with-root=${ROOTSYS} \
 	--with-gzip
     make
+    make clean
     make install
     cd -
 fi
