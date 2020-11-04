@@ -22,12 +22,12 @@ fi
 
 dir0=$(pwd)
 
+process=${process0}
 function runMG5() {
     runName=$1
-    process=$2
-    nevents=$3
-    ptj=$4
-    seed=$5
+    nevents=$2
+    ptj=$3
+    seed=$4
 
     cd ${runDir}
 
@@ -84,7 +84,8 @@ function runPJ() {
     cd ${dir0}
 }
 
-runMG5 ${runName0} ${process0} ${nevents0} ${ptj0} ${seed0}
+process=${process0}
+runMG5 ${runName0} ${nevents0} ${ptj0} ${seed0}
 runPJ ${runName0} ${runName0}.root
 
 
