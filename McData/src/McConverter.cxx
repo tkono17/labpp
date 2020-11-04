@@ -5,12 +5,12 @@
 #include "McData/McEvent.hxx"
 #include "McData/McParticle.hxx"
 #include "McData/McVertex.hxx"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenPdfInfo.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/FourVector.h"
-#include "HepMC/Attribute.h"
+#include "HepMC3/GenEvent.h"
+#include "HepMC3/GenPdfInfo.h"
+#include "HepMC3/GenParticle.h"
+#include "HepMC3/GenVertex.h"
+#include "HepMC3/FourVector.h"
+#include "HepMC3/Attribute.h"
 #include "TTree.h"
 #include "TClonesArray.h"
 
@@ -37,48 +37,52 @@ TTree* McConverter::initTree(const std::string& name, const std::string& title) 
   return mTree;
 }
 
-void McConverter::convert(const HepMC::GenEvent& event) {
+void McConverter::convert(const HepMC3::GenEvent& event) {
   clearEvent();
 
   convertEvent(*mEvent, event);
   
-  HepMC::GenEvent::particle_const_iterator ip;
-  HepMC::GenEvent::vertex_const_iterator iv;
+  //  HepMC3::GenEvent::particle_const_iterator ip;
+  //  HepMC3::GenEvent::vertex_const_iterator iv;
   std::map<const void*,int> vertexmap; // hold a pointer->index mapping
   std::map<const void*,int>::const_iterator vtxentry;
 
   int i=0;
-  for (iv=event.vertices_begin(); iv!=event.vertices_end(); ++iv, ++i) {
-    HepMC::GenVertexPtr genv = *iv;
+  for (auto iv: event.vertices() ) {
+    //  for (iv=event.vertices_begin(); iv!=event.vertices_end(); ++iv, ++i) {
+    HepMC3::ConstGenVertexPtr genv = iv;
     McVertex* v = dynamic_cast<McVertex*>(mVertices->ConstructedAt(i));
     convertVertex(*v, *genv);
-    vertexmap[genv] = i;
+    vertexmap[genv.get()] = i;
+    i++;
   }
 
-  for (i=0, ip=event.particles_begin(); ip!=event.particles_end(); ++ip) {
-    HepMC::GenParticlePtr genp = *ip;
+  //  for (i=0, ip=event.particles_begin(); ip!=event.particles_end(); ++ip) {
+  for (auto ip: event.particles()) {
+    HepMC3::ConstGenParticlePtr genp = ip;
     McParticle* p = dynamic_cast<McParticle*>(mParticles->ConstructedAt(i));
     convertParticle(*p, *genp);
-    const HepMC::GenVertex* vtx1 = genp->production_vertex();
-    const HepMC::GenVertex* vtx2 = genp->end_vertex();
-    if (vtx1 && (vtxentry=vertexmap.find(vtx1)) != vertexmap.end()) {
+    HepMC3::ConstGenVertexPtr vtx1 = genp->production_vertex();
+    HepMC3::ConstGenVertexPtr vtx2 = genp->end_vertex();
+    if (vtx1 && (vtxentry=vertexmap.find(vtx1.get())) != vertexmap.end()) {
       p->setProdVertexIndex(vtxentry->second);
     }
-    if (vtx2 && (vtxentry=vertexmap.find(vtx2)) != vertexmap.end()) {
+    if (vtx2 && (vtxentry=vertexmap.find(vtx2.get())) != vertexmap.end()) {
       p->setEndVertexIndex(vtxentry->second);
     }
+    i ++;
   }
 
 }
 
-void McConverter::convertEvent(McEvent& out, const HepMC::GenEvent& in) {
-  const HepMC::GenPdfInfoPtr pdf = in.pdf_info();
+void McConverter::convertEvent(McEvent& out, const HepMC3::GenEvent& in) {
+  HepMC3::ConstGenPdfInfoPtr pdf = in.pdf_info();
   out.setPDFInfo(0, pdf->parton_id[0], pdf->pdf_id[0], pdf->x[0], pdf->xf[0]);
   out.setPDFInfo(1, pdf->parton_id[1], pdf->pdf_id[1], pdf->x[1], pdf->xf[1]);
   out.setPDFscale(pdf->scale);
 
-  std::shared_ptr<HepMC::IntAttribute> attri;
-  attri = in.attribute<HepMC::IntAttribute>("signal_process_id");
+  std::shared_ptr<HepMC3::IntAttribute> attri;
+  attri = in.attribute<HepMC3::IntAttribute>("signal_process_id");
   if (attri.get() != nullptr) {
     out.setSignalProcessID(attri->value());
   }
@@ -86,14 +90,14 @@ void McConverter::convertEvent(McEvent& out, const HepMC::GenEvent& in) {
 }
 
 void McConverter::convertParticle(McParticle& out, 
-				  const HepMC::GenParticle& in) {
-  const HepMC::FourVector& v4 = in.momentum();
+				  const HepMC3::GenParticle& in) {
+  const HepMC3::FourVector& v4 = in.momentum();
   out.setPDGID(in.pdg_id());
   out.setMomentum(v4.px(), v4.py(), v4.pz(), v4.e());
 }
 
-void McConverter::convertVertex(McVertex& out, const HepMC::GenVertex& in) {
-  const HepMC::FourVector& pos = in.position();
+void McConverter::convertVertex(McVertex& out, const HepMC3::GenVertex& in) {
+  const HepMC3::FourVector& pos = in.position();
   out.setPosition(pos.x(), pos.y(), pos.z(), pos.t());
 }
 

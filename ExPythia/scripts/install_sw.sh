@@ -133,7 +133,8 @@ if [[ ${install_pythia8} == "yes" ]]; then
 	--with-lhapdf6=${sw_dir} \
 	--with-fastjet3=${sw_dir} \
 	--with-hepmc3=${sw_dir} \
-	--with-root=${ROOTSYS}
+	--with-root=${ROOTSYS} \
+	--with-gzip
     make
     make install
     cd -

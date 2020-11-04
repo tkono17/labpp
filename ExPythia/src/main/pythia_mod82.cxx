@@ -12,9 +12,8 @@ using namespace Pythia8;
 #include "fastjet/CDFJetCluPlugin.hh"
 //#include "fastjet/D0RunIIConePlugin.hh"
 #include "TFile.h"
-#include "../interfaces/pythia8/include/Pythia8/Pythia8ToHepMC3.h"
-#include "HepMC/GenEvent.h"   
-#include "HepMC/IO_GenEvent.h"
+#include "Pythia8Plugins/HepMC3.h"
+#include "HepMC3/GenEvent.h"   
 
 #include "TFile.h"
 #include "TTree.h"
@@ -22,7 +21,6 @@ using namespace Pythia8;
 #include "TApplication.h"
 #include "ExRootAnalysis/ExRootTreeWriter.h"
 #include "ExRootAnalysis/ExRootClasses.h"
-#include "ExPythia/MyMergingHooks.hxx"
 #include "McData/FastjetTools.hxx"
 #include "McData/HepmcTools.hxx"
 #include "McData/Jet.hxx"
@@ -53,8 +51,6 @@ int main(int argc, char* argv[]) {
   int nEvent = pythia.mode("Main:numberOfEvents");
 
   // Construct user inut for merging
-  MergingHooks* myMergingHooks = new MyMergingHooks();
-  pythia.setMergingHooksPtr( myMergingHooks );
 
   // For ISR regularisation off
   pythia.settings.forceParm("SpaceShower:pT0Ref",0.);
@@ -71,7 +67,7 @@ int main(int argc, char* argv[]) {
   // Interface for conversion from Pythia8::Event to HepMC event. 
   std::string hepmc_out="a.hepmc";
   //  HepMC::I_Pythia8 ToHepMC;
-  HepMC::Pythia8ToHepMC3 ToHepMC;
+  HepMC3::Pythia8ToHepMC3 ToHepMC;
   // Specify file where HepMC events will be stored.
   //  HepMC::IO_GenEvent ascii_io(hepmc_out, std::ios::out);
 
@@ -114,7 +110,7 @@ int main(int argc, char* argv[]) {
     // histPTFirst.fill( pTfirst, weight);
     // histPTSecond.fill( pTsecnd, weight);
 
-    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
+    HepMC3::GenEvent* hepmcevt = new HepMC3::GenEvent();
     ToHepMC.fill_next_event( pythia, hepmcevt );
 
     // Run jet algorithm
@@ -146,7 +142,5 @@ int main(int argc, char* argv[]) {
   fout->Close();
   delete fout;
 
-  delete myMergingHooks;
-  
   return 0;
 }

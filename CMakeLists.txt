@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 2.8)
 set(PROJECT_NAME labpp)
 
-#project(${PROJECT_NAME})
+project(labpp)
 #set(${PROJECT_NAME} VERSION MAJOR 1)
 #set(${PROJECT_NAME} VERSION MINOR 0)
 

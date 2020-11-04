@@ -4,8 +4,8 @@
 #include "McData/FastjetTools.hxx"
 #include "McData/Jet.hxx"
 #include "McData/IndexPair.hxx"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "HepMC3/GenParticle.h"
+#include "HepMC3/GenVertex.h"
 #include "TClonesArray.h"
 
 const fastjet::JetDefinition& getJetDefinition(const std::string& /*algo_type*/) {
@@ -19,7 +19,7 @@ const fastjet::JetDefinition& getJetDefinition(const std::string& /*algo_type*/)
 }
 
 fastjet::ClusterSequence* 
-runJetAlgorithm(const HepMC::GenEvent& event, 
+runJetAlgorithm(const HepMC3::GenEvent& event, 
 		const fastjet::JetDefinition& jet_def, 
 		std::vector<fastjet::PseudoJet>& jets) {
   std::vector<fastjet::PseudoJet> v;
@@ -27,13 +27,14 @@ runJetAlgorithm(const HepMC::GenEvent& event,
   int ip=0;
   fastjet::PseudoJet pj;
 
-  HepMC::GenEvent::particle_const_iterator p1=event.particles_begin();
-  for (; p1!=event.particles_end(); ++p1, ++ip) {
-    int pid2 = abs( (*p1)->pdg_id());
-    int status =  (*p1)->status();
+  //  HepMC3::GenEvent::particle_const_iterator p1=event.particles_begin();
+  //  for (; p1!=event.particles_end(); ++p1, ++ip) {
+  for (auto p1: event.particles()) {
+    int pid2 = abs( p1->pdg_id());
+    int status =  p1->status();
     if (status == 1 && pid2 != 12 && pid2 != 14 && pid2 != 16) {
       // Stable particle and not neutrinos
-      HepMC::FourVector v4 =  (*p1)->momentum();
+      HepMC3::FourVector v4 =  p1->momentum();
       pj = fastjet::PseudoJet(v4.px(), v4.py(), v4.pz(), v4.e());
       pj.set_user_index(ip);
       v.push_back(pj);

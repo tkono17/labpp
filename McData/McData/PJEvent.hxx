@@ -34,6 +34,8 @@ public:
 
   void setBranchAddress(TTree* t);
 
+  ClassDef(PJEvent, 1)
+
 protected:
   TClonesArray* mVertices;
   TClonesArray* mParticles;
