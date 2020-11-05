@@ -119,9 +119,10 @@ int convertParticleData(const HepMC3::GenEvent& mcevent,
   //  std::map<HepMC3::GenVertexPtr, int>::const_iterator p_v;
 
   particles->Clear();
-  std::cout << "N gen particles in HepmcTools: " << mcevent.particles().size()
-	    << std::endl;
+  // std::cout << "N gen particles in HepmcTools: " << mcevent.particles().size()
+  // 	    << std::endl;
   //  for (; p1!=mcevent.particles_end(); ++p1, ++np) {
+  int ip=0;
   for (auto p1: mcevent.particles()) {
     particle = new ( (*particles)[np]) McParticle();
     particle->setPDGID( p1->pdg_id());
@@ -151,8 +152,12 @@ int convertParticleData(const HepMC3::GenEvent& mcevent,
     // }
     if ( (attrd = p1->attribute<HepMC3::DoubleAttribute>("spin") ) != nullptr) {
       if (attrd.get() != nullptr) {
-	particle->setHelicity(attrd->value() );
-	//	std::cout << "spin: " << attrd->value() << std::endl;
+	double spin = attrd->value();
+	// if (spin < 8) {
+	//   std::cout << "particle[" << ip << "] pdgid=" << particle->pdgID()
+	// 	    << " spin: " << attrd->value() << std::endl;
+	// }
+	particle->setSpin(spin);
       }
     }
     if ( (attrd = p1->attribute<HepMC3::DoubleAttribute>("polTheta") ) != nullptr) {
@@ -162,9 +167,30 @@ int convertParticleData(const HepMC3::GenEvent& mcevent,
     }
     if ( (attrd = p1->attribute<HepMC3::DoubleAttribute>("polPhi") ) != nullptr) {
       if (attrd.get() != nullptr) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	particle->setPolPhi(attrd->value() );
       }
     }
+    ip ++;
   }
   return 0;
 }

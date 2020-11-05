@@ -16,7 +16,7 @@ McParticle::McParticle() {
   mProdVertexIndex = -1;
   mEndVertexIndex = -1;
   mStatus = 0;
-  mHelicity = 0.0;
+  mSpin = 0.0;
   mPolTheta = 0.0;
   mPolPhi = 0.0;
 }
@@ -30,7 +30,7 @@ McParticle::McParticle(float px, float py, float pz, float e) {
   mProdVertexIndex = -1;
   mEndVertexIndex = -1;
   mStatus = 0;
-  mHelicity = 0.0;
+  mSpin = 0.0;
   mPolTheta = 0.0;
   mPolPhi = 0.0;
 }

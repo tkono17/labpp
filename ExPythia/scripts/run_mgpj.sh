@@ -36,7 +36,7 @@ function runMG5() {
     ptj=$3
     seed=$4
 
-    cd ${runDir}
+    cd ${dir0}
 
     if [[ -e $runName ]]; then
 	rm -fr $runName
@@ -64,24 +64,20 @@ EOF
 function runPJ() {
     runName=$1
     rootFile=$2
-    cd ${runDir}
+    cd ${dir0}
 
     lheFile=unweighted_events.lhe
 
-    echo hello
-    pwd
-    cd ${runName}/Events/run_01
-    pwd
-    if [[ -e ${lheFile} ]]; then
-	echo "LHE file found: "
-    elif [[ -e ${lheFile}.gz ]]; then
-	echo "Ungzip LHE file"
-	gzip -d ${lheFile}.gz
-    else
-	echo "No LHE file found"
-    fi
+    #cd ${runName}/Events/run_01
+    # if [[ -e ${lheFile} ]]; then
+    # 	echo "LHE file found: "
+    # elif [[ -e ${lheFile}.gz ]]; then
+    # 	echo "Ungzip LHE file"
+    # 	gzip -d ${lheFile}.gz
+    # else
+    # 	echo "No LHE file found"
+    # fi
 
-    cd ${runDir}
     lhePath=${runDir}/${runName}/Events/run_01/${lheFile}
     if [[ -e ${lhePath} ]]; then
 	echo "Run pj"
