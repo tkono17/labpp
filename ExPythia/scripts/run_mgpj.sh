@@ -20,6 +20,13 @@ if [[ ${nevents0} -le 0 ]]; then
     exit 1
 fi
 
+echo "Running with the following parameters"
+echo "runName: ${runName0}"
+echo "process: ${process0}"
+echo "N events: ${nevents0}"
+echo "pt(j) cut: ${ptj0}"
+echo "Random seed: ${seed0}"
+
 dir0=$(pwd)
 
 process=${process0}
@@ -41,7 +48,7 @@ function runMG5() {
     fi
     cat <<EOF >> ${mgConfigFile}
 import model sm
-generate p p > j j
+generate ${process}
 output ${runName}
 
 launch ${runName}
@@ -87,5 +94,4 @@ function runPJ() {
 process=${process0}
 runMG5 ${runName0} ${nevents0} ${ptj0} ${seed0}
 runPJ ${runName0} ${runName0}.root
-
 

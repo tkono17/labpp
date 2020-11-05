@@ -119,6 +119,8 @@ int convertParticleData(const HepMC3::GenEvent& mcevent,
   //  std::map<HepMC3::GenVertexPtr, int>::const_iterator p_v;
 
   particles->Clear();
+  std::cout << "N gen particles in HepmcTools: " << mcevent.particles().size()
+	    << std::endl;
   //  for (; p1!=mcevent.particles_end(); ++p1, ++np) {
   for (auto p1: mcevent.particles()) {
     particle = new ( (*particles)[np]) McParticle();
