@@ -122,9 +122,8 @@ int convertParticleData(const HepMC3::GenEvent& mcevent,
   // std::cout << "N gen particles in HepmcTools: " << mcevent.particles().size()
   // 	    << std::endl;
   //  for (; p1!=mcevent.particles_end(); ++p1, ++np) {
-  int ip=0;
   for (auto p1: mcevent.particles()) {
-    particle = new ( (*particles)[np]) McParticle();
+    particle = new ( (*particles)[np++]) McParticle();
     particle->setPDGID( p1->pdg_id());
     const HepMC3::FourVector& v4 = p1->momentum();
     particle->setMomentum(v4.px(), v4.py(), v4.pz(), v4.e());
@@ -168,29 +167,10 @@ int convertParticleData(const HepMC3::GenEvent& mcevent,
     if ( (attrd = p1->attribute<HepMC3::DoubleAttribute>("polPhi") ) != nullptr) {
       if (attrd.get() != nullptr) {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	particle->setPolPhi(attrd->value() );
       }
     }
-    ip ++;
+    np ++;
   }
   return 0;
 }
@@ -211,6 +191,7 @@ int convertVertexData(const HepMC3::GenEvent& mcevent,
     vtx->setPosition(v4.x(), v4.y(), v4.z(), v4.t());
     //    std::cout<< "vtx.z="<< v4.z()<< std::endl;
     vtx_id_map[p1] = nv;
+    nv ++;
   }
   return 0;
 }
