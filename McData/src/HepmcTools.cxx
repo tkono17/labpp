@@ -112,18 +112,12 @@ void convertEventData(const HepMC3::GenEvent& mcevent,
 int convertParticleData(const HepMC3::GenEvent& mcevent, 
 			TClonesArray* particles, 
 			const std::map<HepMC3::ConstGenVertexPtr, int>& vtx_id_map) {
-  //  HepMC3::GenEvent::particle_const_iterator p1=mcevent.particles_begin();
   int np=0;
   McParticle* particle=0;
-  //  HepMC3::GenVertexPtr vtx=0;
-  //  std::map<HepMC3::GenVertexPtr, int>::const_iterator p_v;
 
   particles->Clear();
-  // std::cout << "N gen particles in HepmcTools: " << mcevent.particles().size()
-  // 	    << std::endl;
-  //  for (; p1!=mcevent.particles_end(); ++p1, ++np) {
   for (auto p1: mcevent.particles()) {
-    particle = new ( (*particles)[np++]) McParticle();
+    particle = new ( (*particles)[np]) McParticle();
     particle->setPDGID( p1->pdg_id());
     const HepMC3::FourVector& v4 = p1->momentum();
     particle->setMomentum(v4.px(), v4.py(), v4.pz(), v4.e());
@@ -184,7 +178,6 @@ int convertVertexData(const HepMC3::GenEvent& mcevent,
 
   vtx_id_map.clear();
   vertices->Clear();
-  //  for (; p1!=mcevent.vertices_end(); ++p1, ++nv) {
   for (auto p1: mcevent.vertices() ) {
     const HepMC3::FourVector& v4 = p1->position();
     vtx = new ( (*vertices)[nv]) McVertex(v4.x(), v4.y(), v4.z(), v4.t());

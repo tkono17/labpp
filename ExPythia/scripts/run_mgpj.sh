@@ -68,17 +68,21 @@ function runPJ() {
 
     lheFile=unweighted_events.lhe
 
-    #cd ${runName}/Events/run_01
-    # if [[ -e ${lheFile} ]]; then
-    # 	echo "LHE file found: "
-    # elif [[ -e ${lheFile}.gz ]]; then
-    # 	echo "Ungzip LHE file"
-    # 	gzip -d ${lheFile}.gz
-    # else
-    # 	echo "No LHE file found"
-    # fi
+    cd ${runName}/Events/run_01
+    if [[ -e ${lheFile} ]]; then
+    	echo "LHE file found: "
+	lheFile=unweighted_events.lhe
+    elif [[ -e ${lheFile}.gz ]]; then
+    	#echo "Ungzip LHE file"
+    	#gzip -d ${lheFile}.gz
+	echo "Keep the *.lhe.gz file and use it in Pythia8"
+	lheFile=unweighted_events.lhe.gz
+    else
+    	echo "No LHE file found"
+    fi
 
-    lhePath=${runDir}/${runName}/Events/run_01/${lheFile}
+    lhePath=${dir0}/${runName}/Events/run_01/${lheFile}
+    echo "lhePath: $lhePath"
     if [[ -e ${lhePath} ]]; then
 	echo "Run pj"
 	echo runPythiaJet.exe 'no_cmnd' ${lhePath} ${rootFile}
