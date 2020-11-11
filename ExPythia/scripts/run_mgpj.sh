@@ -81,6 +81,7 @@ function runPJ() {
     	echo "No LHE file found"
     fi
 
+    cd ${dir0}
     lhePath=${dir0}/${runName}/Events/run_01/${lheFile}
     echo "lhePath: $lhePath"
     if [[ -e ${lhePath} ]]; then
