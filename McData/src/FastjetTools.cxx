@@ -27,8 +27,6 @@ runJetAlgorithm(const HepMC3::GenEvent& event,
   int ip=0;
   fastjet::PseudoJet pj;
 
-  //  HepMC3::GenEvent::particle_const_iterator p1=event.particles_begin();
-  //  for (; p1!=event.particles_end(); ++p1, ++ip) {
   for (auto p1: event.particles()) {
     int pid2 = abs( p1->pdg_id());
     int status =  p1->status();
@@ -39,6 +37,7 @@ runJetAlgorithm(const HepMC3::GenEvent& event,
       pj.set_user_index(ip);
       v.push_back(pj);
     }
+    ip ++;
   }
   fastjet::ClusterSequence* cs = new fastjet::ClusterSequence(v, jet_def);
   jets = sorted_by_pt(cs->inclusive_jets());
