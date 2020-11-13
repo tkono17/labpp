@@ -12,7 +12,7 @@ const fastjet::JetDefinition& getJetDefinition(const std::string& /*algo_type*/)
   static fastjet::JetDefinition* jet_def(0);
   if (jet_def == 0) {
     // algo_type not used 
-    double R=0.7;
+    double R=0.4;
     jet_def = new fastjet::JetDefinition(fastjet::antikt_algorithm, R);
   }
   return *jet_def;
