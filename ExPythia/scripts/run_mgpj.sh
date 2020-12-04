@@ -52,9 +52,9 @@ generate ${process}
 output ${runName}
 
 launch ${runName}
-nevents ${nevents}
-iseed ${seed}
-set ptj ${ptj}
+  set nevents ${nevents}
+  set iseed ${seed}
+  set ptj ${ptj}
 EOF
 
     mg5_aMC ${mgConfigFile} >& mg5_${runName}.log
