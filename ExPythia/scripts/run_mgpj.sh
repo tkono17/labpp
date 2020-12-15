@@ -98,6 +98,6 @@ function runPJ() {
 }
 
 process=${process0}
-runMG5 ${runName0} ${nevents0} ${ptj0} ${seed0}
+runMG5 ${runName0} ${nevents0} ${ptj0} ${ptl0} ${seed0}
 runPJ ${runName0} ${runName0}.root
 
