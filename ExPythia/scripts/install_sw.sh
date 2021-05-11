@@ -8,7 +8,7 @@
 #             Create two directories (src and sw) under this directory, e.g. 
 #             cd ${proj_dir}; mkdir src sw
 #---------------------------------------------------------------------
-proj_dir=/nfs/space3/tkohno/work/Phenomenology/mg2020
+proj_dir=/nfs/space3/tkohno/work/Phenomenology/mg2021
 #---------------------------------------------------------------------
 sw_dir=${proj_dir}/sw
 dev_dir=${proj_dir}/dev
@@ -22,7 +22,7 @@ install_lhapdf=
 install_fastjet=
 install_hepmc=
 install_pythia8=yes
-install_madgraph=
+install_madgraph=yes
 #---------------------------------------------------------------------
 
 if [[ $ROOTSYS == "" ]]; then
@@ -90,8 +90,10 @@ if [[ ${install_hepmc} == "yes" ]]; then
     mkdir -p ${bname}
     cd ${bname}
     cmake -DCMAKE_INSTALL_PREFIX=${sw_dir} ${sname} \
-	-D momentum:STRING=GEV -Dlength:STRING=MM
-    ./configure --prefix=${sw_dir} 
+	-D momentum:STRING=GEV -Dlength:STRING=MM \
+	-D HEPMC3_Python_SITEARCH27=${SWDIR}/share/python2.7/site-packages \
+	-D HEPMC3_Python_SITEARCH38=${SWDIR}/share/python3.8/site-packages
+    ./configure --prefix=${sw_dir}
     make
     make install
     cd -
