@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <iterator>
 
+ClassImp(PJEvent)
+
 PJEvent::PJEvent() : TObject() {
   mVertices = 0;
   mParticles = 0;

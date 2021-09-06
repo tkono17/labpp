@@ -3,7 +3,7 @@
 */
 #include "McData/McEvent.hxx"
 
-namespace HepMC {
+namespace HepMC3 {
   class GenEvent;
   class GenParticle;
   class GenVertex;
@@ -23,13 +23,13 @@ public:
   TTree* tree() { return mTree; }
 
   TTree* initTree(const std::string& name, const std::string& title);
-  void convert(const HepMC::GenEvent& event);
+  void convert(const HepMC3::GenEvent& event);
   void clearEvent();
 
 private:
-  void convertEvent(McEvent& out, const HepMC::GenEvent& in);
-  void convertParticle(McParticle& out, const HepMC::GenParticle& in);
-  void convertVertex(McVertex& out, const HepMC::GenVertex& in);
+  void convertEvent(McEvent& out, const HepMC3::GenEvent& in);
+  void convertParticle(McParticle& out, const HepMC3::GenParticle& in);
+  void convertVertex(McVertex& out, const HepMC3::GenVertex& in);
 private:
   TTree* mTree;
 

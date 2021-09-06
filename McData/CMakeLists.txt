@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 2.8)
 set(PROJECT_NAME McData)
 
@@ -42,11 +41,11 @@ include(${ROOT_USE_FILE})
 list(APPEND LIBS ${ROOT_LIBRARIES})
 
 include_directories(${DESTINATION}/include 
-  ${DESTINATION}/MG5_aMC_v2_6_3_2/ExRootAnalysis )
-list(APPEND LIBS ${DESTINATION}/lib64/libHepMC.so 
+  ${DESTINATION}/MG5_aMC_v2_8_0/ExRootAnalysis )
+list(APPEND LIBS ${DESTINATION}/lib64/libHepMC3.so 
 	    ${DESTINATION}/lib/libfastjet.so
 	    ${DESTINATION}/lib/libpythia8.so
-	    ${DESTINATION}/MG5_aMC_v2_6_3_2/ExRootAnalysis/libExRootAnalysis.so
+	    ${DESTINATION}/MG5_aMC_v2_8_0/ExRootAnalysis/libExRootAnalysis.so
   )
 
 #####-------------------------------------------------------------

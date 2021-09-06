@@ -15,6 +15,7 @@ public:
   void setEndVertexIndex(int i) { mEndVertexIndex = i; }
   void setMomentum(float px, float py, float pz, float e);
   void setStatus(int i){ mStatus = i; };
+  void setSpin(float h) { mSpin = h; }
   void setPolTheta(float x) { mPolTheta = x; }
   void setPolPhi(float x) { mPolPhi = x; }
 
@@ -24,6 +25,7 @@ public:
   int status() const {return mStatus;}
   float polTheta() const { return mPolTheta; }
   float polPhi() const { return mPolPhi; }
+  float spin() const { return mSpin; }
 
   TLorentzVector v4() const;
 
@@ -38,6 +40,7 @@ protected:
   Int_t mProdVertexIndex;
   Int_t mEndVertexIndex;
   Int_t mStatus;
+  Float_t mSpin;
   Float_t mPolTheta;
   Float_t mPolPhi;
 };

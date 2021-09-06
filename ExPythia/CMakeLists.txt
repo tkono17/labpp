@@ -20,7 +20,6 @@ include_directories(${PROJECT_BINARY_DIR})
 include_directories(../McData)
 
 file(GLOB LIB_SRCS src/[a-zA-Z]*.cxx)
-list(APPEND LIB_SRCS src/Pythia8ToHepMC3.cc)
 file(GLOB EXE_SRCS src/main/*.cxx)
 # file(GLOB DICT_HEADERS ${PROJECT_NAME}/[a-zA-Z].hxx)
 set(DICT_HEADERS )
@@ -37,12 +36,12 @@ list(APPEND LIBS ${ROOT_LIBRARIES})
 
 include_directories(${DESTINATION}/include 
   ${PROJECT_SOURCE_DIR}/McData
-  ${DESTINATION}/MG5_aMC_v2_6_3_2/ExRootAnalysis )
+  ${DESTINATION}/MG5_aMC_v2_8_0/ExRootAnalysis )
 link_directories($ENV{SWDIR}/lib)
-list(APPEND LIBS ${DESTINATION}/lib64/libHepMC.so 
+list(APPEND LIBS ${DESTINATION}/lib64/libHepMC3.so 
 	    ${DESTINATION}/lib/libfastjet.so
 	    ${DESTINATION}/lib/libpythia8.so
-	    ${DESTINATION}/MG5_aMC_v2_6_3_2/ExRootAnalysis/libExRootAnalysis.so
+	    ${DESTINATION}/MG5_aMC_v2_8_0/ExRootAnalysis/libExRootAnalysis.so
 	    ${PROJECT_BINARY_DIR}/../McData/libMcData.so
   )
 
@@ -71,7 +70,7 @@ target_link_libraries(${PROJECT_NAME} ${LIBS})
 #####-------------------------------------------------------------
 ##### Executables
 #####-------------------------------------------------------------
-set(EXES )
+set(EXE_SRCS src/main/runPythiaJet.cxx)
 foreach(progsrc ${EXE_SRCS})
   string(REGEX REPLACE ".*src/main/(.*).cxx" "\\1.exe" progexe ${progsrc})
   list(APPEND EXES ${progexe})
@@ -91,5 +90,6 @@ foreach(progexe ${EXES})
   install(TARGETS ${progexe} DESTINATION bin)
 endforeach()
 
+install(PROGRAMS scripts/run_mgpj.sh DESTINATION bin)
 #install(FILES share/${PROJECT_NAME}Config.cmake DESTINATION share/cmake)
 

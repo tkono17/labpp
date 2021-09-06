@@ -8,13 +8,13 @@
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/PseudoJet.hh"
-#include "HepMC/GenEvent.h"
+#include "HepMC3/GenEvent.h"
 #include "ExRootAnalysis/ExRootTreeBranch.h"
 
 const fastjet::JetDefinition& getJetDefinition(const std::string& algo_type);
 
 fastjet::ClusterSequence* 
-runJetAlgorithm(const HepMC::GenEvent& event, 
+runJetAlgorithm(const HepMC3::GenEvent& event, 
 		const fastjet::JetDefinition& jet_def, 
 		std::vector<fastjet::PseudoJet>& jets);
 
