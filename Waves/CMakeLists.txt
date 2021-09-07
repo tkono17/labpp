@@ -10,4 +10,5 @@ install(DIRECTORY python/wsim DESTINATION python FILES_MATCHING PATTERN "*.py"
 )
 install(PROGRAMS scripts/singleSlit.py DESTINATION bin)
 install(PROGRAMS scripts/doubleSlit.py DESTINATION bin)
+install(PROGRAMS scripts/plotInterference.py DESTINATION bin)
 

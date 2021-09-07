@@ -4,6 +4,7 @@
 #-----------------------------------------------------------------------
 
 import math
+import numpy as np
 
 mm = 1.0
 um = 1.0E-3
@@ -20,7 +21,8 @@ class Aperture1:
         self.nElements = int(self.length/s)
         if self.nElements <= 0.0: self.nElements = 1
         self.elementSize = self.length/self.nElements
-        print('Set aperature elements %d, %f' % (self.nElements, self.elementSize))
+        self.amplitudes = [0.0]*self.nElements
+        self.phases = [0.0]*self.nElements
     def allElements(self, offset=0.0):
         v = []
         print('Aperture n %d %f' % (self.nElements, self.length))
@@ -29,7 +31,7 @@ class Aperture1:
         return v
     def elementCenter(self, i):
         if i >= 0 and i < self.nElements:
-            return self.elementSize*(i*0.5)
+            return self.elementSize*(i+0.5)
         else:
             return None
 
@@ -43,6 +45,8 @@ class Slit1:
         self.planeType = 'Screen'
         self.elementSize = 0.0
         self.nElements = 0
+        self.amplitudes = []
+        self.phases = []
     def addAperture(self, location, length):
         a = Aperture1(length, location)
         self.apertures.append(a)
@@ -59,13 +63,15 @@ class Slit1:
             self.nElements = int(self.length/s)
             if self.nElements <= 0.0: self.nElements = 1
             self.elementSize = self.length/self.nElements
+            self.amplitudes = [0.0]*self.nElements
+            self.phases = [0.0]*self.nElements
     def nApertures(self):
         return len(self.apertures)
     def allElements(self):
         v = []
         if self.planeType in ('Source', 'Screen'):
             for i in range(self.nElements):
-                v.append(self.elementSize*(i*0.5))
+                v.append(self.elementSize*(i+0.5))
         elif self.planeType in ('Slit'):
             for a in self.apertures:
                 v += a.allElements(a.location)
@@ -77,6 +83,35 @@ class Slit1:
         s = math.sin(self.angle)
         v2 = map(lambda x: (x0+x*c, y0+x*s), v)
         return list(v2)
+    def allElementAmplitudes(self):
+        v = []
+        if self.planeType in ('Source', 'Screen'):
+            v = self.amplitudes
+        elif self.planeType in ('Slit'):
+            for a in self.apertures:
+                v += a.amplitudes
+        return v
+    def allElementPhases(self):
+        v = []
+        if self.planeType in ('Source', 'Screen'):
+            v = self.phases
+        elif self.planeType in ('Slit'):
+            for a in self.apertures:
+                v += a.phases
+        return v
+    def updateAmplitudes(self, vamplitude, vphase):
+        print('Update amplitude for %s n=%d' % (self.planeType, len(vamplitude)))
+        if self.planeType in ('Source', 'Screen'):
+            self.amplitudes = list(vamplitude)
+            self.phases = list(vphase)
+        elif self.planeType in ('Slit'):
+            offset = 0
+            for a in self.apertures:
+                n = a.nElements
+                a.amplitudes = list(vamplitude[offset:offset+n])
+                a.phases = list(vphase[offset:offset+n])
+                offset += n
+        
 
 class SingleSlit1(Slit1):
     def __init__(self, length, a, location, angle):
@@ -96,8 +131,15 @@ class Source1(Slit1):
     def __init__(self, length, location, angle):
         super().__init__(length, location, angle)
         self.planeType = 'Source'
-        self.waveLength = 500.0E-6
-
+        self.waveLength = 500.0*nm
+        self.intensity = 1.0
+    def setIntensity(self, x):
+        self.intensity = x
+    def setElementSize(self, s):
+        super().setElementSize(s)
+        a = math.sqrt(self.intensity)/(self.nElements)#*self.length)
+        self.amplitudes = [a]*self.nElements
+        self.phases = [0.0]*self.nElements
 class Screen1(Slit1):
     def __init__(self, length, location, angle):
         super().__init__(length, location, angle)
