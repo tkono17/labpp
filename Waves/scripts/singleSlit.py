@@ -32,7 +32,7 @@ def singleSlit():
     setup.source = wsim.Source1(w0, (l0, -w0/2.0), 90.0*deg)
     setup.source.waveLength = wl
     setup.screen = wsim.Screen1(w2, (l2, -w2/2.0), 90.0*deg)
-    setup.addSlit(wsim.SingleSlit1(w1, b, (l1, -w1/2.0+t1), 90.0*deg+alpha1))
+    #setup.addSlit(wsim.SingleSlit1(w1, b, (l1, -w1/2.0+t1), 90.0*deg+alpha1))
     setup.source.setIntensity(1.0)
     #
     dx0 = 10.0*nm
@@ -60,7 +60,7 @@ def singleSlit():
     a = np.array(a)
     a2 = a*a/2.0
     #
-    y = wsim.intensitySingleSlitX(x, b, wl, l2)
+    y = wsim.intensitySingleSlitX(x, b, wl, l2-l0)
     fig, ax = plt.subplots()
     #plt.yscale('log')
     ax.plot(x, a2)
@@ -70,7 +70,7 @@ def singleSlit():
     f = open('a.pickle', 'wb')
     pickle.dump(setup, f)
     print('printout slit amplitudes')
-    print(setup.slits[0].amplitudes)
+    #print(setup.slits[0].amplitudes)
     f.close()
 
 

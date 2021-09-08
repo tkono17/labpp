@@ -47,7 +47,7 @@ def updateAmplitudes(setup):
         a0 = sp.allElementAmplitudes()
         p0 = sp.allElementPhases()
         x1, x0, a0, p0 = np.array(x1), np.array(x0), np.array(a0), np.array(p0)
-        a0 = a0#*sp.elementSize
+        a0 = a0*sp.elementSize
         a1, p1 = [], []
         for p in x1:
             dx = p - x0
