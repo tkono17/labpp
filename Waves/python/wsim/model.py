@@ -55,11 +55,14 @@ class Slit1:
         if self.planeType in ('Slit'):
             for a in self.apertures:
                 a.setElementSize(s)
-            self.nElements = 0.0
+            self.nElements = 0
             self.elementSize = 0.0
+            if len(self.apertures)>0:
+                a = self.apertures[0]
+                self.nElements = a.nElements
+                self.elementSize = a.elementSize
+                print('Set element size of a slit to %f' % self.elementSize)
         elif self.planeType in ('Screen', 'Source'):
-            print(self.length)
-            print(s)
             self.nElements = int(self.length/s)
             if self.nElements <= 0.0: self.nElements = 1
             self.elementSize = self.length/self.nElements
@@ -100,7 +103,8 @@ class Slit1:
                 v += a.phases
         return v
     def updateAmplitudes(self, vamplitude, vphase):
-        print('Update amplitude for %s n=%d' % (self.planeType, len(vamplitude)))
+        print('Update amplitude for %s (%d elements)' % \
+              (self.planeType, len(vamplitude)))
         if self.planeType in ('Source', 'Screen'):
             self.amplitudes = list(vamplitude)
             self.phases = list(vphase)
@@ -111,7 +115,7 @@ class Slit1:
                 a.amplitudes = list(vamplitude[offset:offset+n])
                 a.phases = list(vphase[offset:offset+n])
                 offset += n
-        
+            print('  offset after setting all entries %d' % offset)
 
 class SingleSlit1(Slit1):
     def __init__(self, length, a, location, angle):
@@ -137,13 +141,16 @@ class Source1(Slit1):
         self.intensity = x
     def setElementSize(self, s):
         super().setElementSize(s)
-        a = math.sqrt(self.intensity)/(self.length)
+        a = math.sqrt(self.intensity)/self.length
         self.amplitudes = [a]*self.nElements
         self.phases = [0.0]*self.nElements
+
 class Screen1(Slit1):
     def __init__(self, length, location, angle):
         super().__init__(length, location, angle)
         self.planeType = 'Screen'
+    def setElementSize(self, s):
+        super().setElementSize(s)
 
 class SlitSetup2:
     def __init__(self):

@@ -39,16 +39,26 @@ def updateAmplitudes(setup):
     l = setup.source.waveLength
     k = math.pi/l
 
+    def dthetaTodx(row):
+        r = np.sqrt(np.sum(row**2))
+        theta = np.arctan2(row[1], row[0])
+        return 1.0/(r*math.cos(theta))
+
     sp = setup.source
-    layers = setup.slits + [setup.screen]
-    for layer in layers:
+    layers = list(setup.slits) + [setup.screen]
+    for ilayer, layer in enumerate(layers):
         x1 = layer.allElementPositions()
         x0 = sp.allElementPositions()
         a0 = sp.allElementAmplitudes()
         p0 = sp.allElementPhases()
         x1, x0, a0, p0 = np.array(x1), np.array(x0), np.array(a0), np.array(p0)
-        a0 = a0*sp.elementSize
+        print('Update amplitudes at layer %d (%d sub-regions with element size=%10.6f)' % \
+              (ilayer+1, x1.shape[0], sp.elementSize) )
+        a0 *= sp.elementSize
         a1, p1 = [], []
+        #
+        todx = True
+        if layer.planeType == 'Screen': todx = False
         for p in x1:
             dx = p - x0
             vl = np.sqrt(np.sum(dx**2, axis=1))
@@ -62,6 +72,14 @@ def updateAmplitudes(setup):
             yim = np.sum(vim)
             amp1 = np.sqrt(yre**2 + yim**2)
             phase1 = np.arctan2(yim, yre)
+            J = 1.0
+            if todx:
+                # change of variables (theta -> x)
+                dxmean = dx[int(dx.shape[0]/2)]
+                theta = math.atan2(dxmean[1], dxmean[0])
+                r = math.sqrt(np.sum(dxmean**2))
+                J = 1.0/(r*math.cos(theta))
+            amp1 *= J
             a1.append(amp1)
             p1.append(phase1)
         layer.updateAmplitudes(a1, p1)

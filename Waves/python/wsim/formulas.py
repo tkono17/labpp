@@ -12,6 +12,8 @@ def intensitySingleSlitA(theta, b, wl, r):
     k = math.pi/wl
     kb = (k*b/2.0)*np.sin(theta)
     y = (1.0/r)*np.sin(kb)/kb
+    J = 1.0/(r*np.cos(theta))
+    #y *= J
     return (y**2)/2.0
 
 def intensitySingleSlitX(x, b, wl, l):

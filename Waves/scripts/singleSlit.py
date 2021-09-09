@@ -16,7 +16,7 @@ mrad = 1.0E-3
 
 def singleSlit():
     # Length of the planes (x-direction)
-    l0, l1, l2 = -100.0, 0.0*mm, 1000.0*mm
+    l0, l1, l2 = -1000.0*mm, 0.0*mm, 1000.0*mm
     # Width of each plane (y-direction)
     w0, w1, w2 = 0.05*mm, 100.0*mm, 200*mm
     # Misalignment parameters
@@ -32,20 +32,25 @@ def singleSlit():
     setup.source = wsim.Source1(w0, (l0, -w0/2.0), 90.0*deg)
     setup.source.waveLength = wl
     setup.screen = wsim.Screen1(w2, (l2, -w2/2.0), 90.0*deg)
-    #setup.addSlit(wsim.SingleSlit1(w1, b, (l1, -w1/2.0+t1), 90.0*deg+alpha1))
+    setup.addSlit(wsim.SingleSlit1(w1, b, (l1, -w1/2.0), 90.0*deg+alpha1))
     setup.source.setIntensity(1.0)
     #
     dx0 = 10.0*nm
     dx1 = 10.0*nm
-    dx2 = 100.0*um*2
+    dx2 = 100.0*um
     setup.source.setElementSize(dx0)
     for s in setup.slits:
         s.setElementSize(dx1)
     setup.screen.setElementSize(dx2)
 
+    print('Source element size %f' % setup.source.elementSize)
+    for i, s in enumerate(setup.slits):
+        print('Slit %d element size %f' % (i, s.elementSize) )
+    print('Screen element size %f' % setup.screen.elementSize)
+
     a0 = setup.source.amplitudes
     print('N amplitudes', len(a0))
-    xm = -1E-2
+    xm = 1.0E-2
     dx = 2*xm/len(a0)
     phase0 = np.arange(-xm, xm, dx*10E+3)
     print('phase0 shape', phase0.shape)
@@ -60,9 +65,9 @@ def singleSlit():
     a = np.array(a)
     a2 = a*a/2.0
     #
-    y = wsim.intensitySingleSlitX(x, b, wl, l2-l0)
+    y = wsim.intensitySingleSlitX(x, b, wl, l2)
     fig, ax = plt.subplots()
-    #plt.yscale('log')
+    plt.yscale('log')
     ax.plot(x, a2)
     ax.plot(x, y, '--')
     plt.show()
