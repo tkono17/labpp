@@ -102,6 +102,9 @@ class Slit1:
             for a in self.apertures:
                 v += a.phases
         return v
+    def allElementIntensities(self):
+        v = np.array(self.allElementAmplitudes())
+        return (v**2)/2.0
     def updateAmplitudes(self, vamplitude, vphase):
         print('Update amplitude for %s (%d elements)' % \
               (self.planeType, len(vamplitude)))
@@ -127,9 +130,9 @@ class DoubleSlit1(Slit1):
     def __init__(self, length, a, b, location, angle):
         super().__init__(length, location, angle)
         x1 = length/2.0 - (a+b)/2.0
-        self.addAperture(x1, a)
-        x2 = length/2.0 + (b-a)/2.0
-        self.addAperture(x2, a)
+        self.addAperture(x1, b)
+        x2 = length/2.0 + (a-b)/2.0
+        self.addAperture(x2, b)
 
 class Source1(Slit1):
     def __init__(self, length, location, angle):
@@ -141,7 +144,9 @@ class Source1(Slit1):
         self.intensity = x
     def setElementSize(self, s):
         super().setElementSize(s)
-        a = math.sqrt(self.intensity)/self.length
+        I = math.sqrt(self.intensity)/self.length
+        a = math.sqrt(2.0*I)
+        a = self.intensity/self.length
         self.amplitudes = [a]*self.nElements
         self.phases = [0.0]*self.nElements
 

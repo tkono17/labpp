@@ -9,11 +9,11 @@ import numpy as np
 def intensitySingleSlitA(theta, b, wl, r):
     """Intensity at distance r from a single slit of width b, as a function of 
     the angle."""
-    k = math.pi/wl
+    k = 2.0*math.pi/wl
     kb = (k*b/2.0)*np.sin(theta)
-    y = (1.0/r)*np.sin(kb)/kb
+    y = np.sin(kb)/kb
     J = 1.0/(r*np.cos(theta))
-    #y *= J
+    y *= J
     return (y**2)/2.0
 
 def intensitySingleSlitX(x, b, wl, l):

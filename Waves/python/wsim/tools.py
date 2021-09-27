@@ -37,12 +37,7 @@ def calculate(setup):
 
 def updateAmplitudes(setup):
     l = setup.source.waveLength
-    k = math.pi/l
-
-    def dthetaTodx(row):
-        r = np.sqrt(np.sum(row**2))
-        theta = np.arctan2(row[1], row[0])
-        return 1.0/(r*math.cos(theta))
+    k = 2.0*math.pi/l
 
     sp = setup.source
     layers = list(setup.slits) + [setup.screen]
@@ -57,17 +52,18 @@ def updateAmplitudes(setup):
         a0 *= sp.elementSize
         a1, p1 = [], []
         #
-        todx = True
-        if layer.planeType == 'Screen': todx = False
+        todx = False
+        if layer.planeType == 'Screen':
+            todx = True
         for p in x1:
             dx = p - x0
             vl = np.sqrt(np.sum(dx**2, axis=1))
             vre0 = a0*np.cos(p0)
             vim0 = a0*np.sin(p0)
-            vcos = np.cos(k*vl+p0)/vl
-            vsin = np.sin(k*vl+p0)/vl
-            vre = vcos*a0 - vsin*vim0
-            vim = vsin*a0 + vcos*vim0
+            vcos = np.cos(k*vl)
+            vsin = np.sin(k*vl)
+            vre = vre0*vcos - vim0*vsin
+            vim = vre0*vsin + vim0*vcos
             yre = np.sum(vre)
             yim = np.sum(vim)
             amp1 = np.sqrt(yre**2 + yim**2)

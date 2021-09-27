@@ -7,4 +7,5 @@ set(DESTINATION $ENV{SWDIR})
 set(CMAKE_INSTALL_PREFIX ${DESTINATION})
 
 add_subdirectory(../../Waves Waves)
+add_subdirectory(../../Statistics/Bayes Bayes)
 
