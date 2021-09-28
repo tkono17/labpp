@@ -40,6 +40,7 @@ def updateAmplitudes(setup):
     k = 2.0*math.pi/l
 
     sp = setup.source
+    print('Sp type: %s' % sp.planeType)
     layers = list(setup.slits) + [setup.screen]
     for ilayer, layer in enumerate(layers):
         x1 = layer.allElementPositions()
@@ -49,7 +50,8 @@ def updateAmplitudes(setup):
         x1, x0, a0, p0 = np.array(x1), np.array(x0), np.array(a0), np.array(p0)
         print('Update amplitudes at layer %d (%d sub-regions with element size=%10.6f)' % \
               (ilayer+1, x1.shape[0], sp.elementSize) )
-        a0 *= sp.elementSize
+        if sp.planeType == 'Source' or True:
+            a0 *= sp.elementSize
         a1, p1 = [], []
         #
         todx = False
@@ -64,6 +66,7 @@ def updateAmplitudes(setup):
             vsin = np.sin(k*vl)
             vre = vre0*vcos - vim0*vsin
             vim = vre0*vsin + vim0*vcos
+            #
             yre = np.sum(vre)
             yim = np.sum(vim)
             amp1 = np.sqrt(yre**2 + yim**2)

@@ -30,9 +30,9 @@ def singleSlit(args):
     alpha1 = args.alpha1*mrad
     #
     print('Wavelength: %10.6f [nm]' % (wl*1.0E+6))
-    print('Source:      z=%10.3f, width=%10.3f [mm]' % (x0, w0))
-    print('Single slit: z=%10.3f, width=%10.3f, b=%10.3f [mm]' % (x1, w2, b))
-    print('Screen:      z=%10.3f, width=%10.3f [mm]' % (x2, w2))
+    print('Source:      z=%8.3f, width=%6.3f [mm]' % (x0, w0))
+    print('Single slit: z=%8.3f, width=%6.3f, b=%10.3f [mm]' % (x1, w2, b))
+    print('Screen:      z=%8.3f, width=%6.3f [mm]' % (x2, w2))
     #
     setup = wsim.SlitSetup2()
     setup.source = wsim.Source1(w0, (x0, -w0/2.0), 90.0*deg)
@@ -44,6 +44,8 @@ def singleSlit(args):
     dx0 = 10.0*nm
     dx1 = 10.0*nm
     dx2 = 100.0*um
+    print('dx: %8.6f (source), %8.6f (slit), %8.6f (screen)' %\
+          (dx0, dx1, dx2) )
     setup.source.setElementSize(dx0)
     for s in setup.slits:
         s.setElementSize(dx1)
@@ -68,7 +70,7 @@ def singleSlit(args):
     x = setup.screen.allElements()
     a = setup.screen.allElementIntensities()
     x = np.array(x) + setup.screen.location[1]
-    a = np.array(a)*2500
+    a = np.array(a)*500
     #
     if len(setup.slits) == 0:
         b = args.w0
