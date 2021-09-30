@@ -70,7 +70,7 @@ def singleSlit(args):
     x = setup.screen.allElements()
     a = setup.screen.allElementIntensities()
     x = np.array(x) + setup.screen.location[1]
-    a = np.array(a)*500
+    a = np.array(a)
     #
     if len(setup.slits) == 0:
         b = args.w0

@@ -50,9 +50,14 @@ def updateAmplitudes(setup):
         x1, x0, a0, p0 = np.array(x1), np.array(x0), np.array(a0), np.array(p0)
         print('Update amplitudes at layer %d (%d sub-regions with element size=%10.6f)' % \
               (ilayer+1, x1.shape[0], sp.elementSize) )
+        print('a0 = ', a0[0])
         if sp.planeType == 'Source' or True:
             a0 *= sp.elementSize
         a1, p1 = [], []
+        print('a0*dy, dy, sum(a0) = ', a0[0], sp.elementSize, np.sum(a0))
+        print('sum(a0)=', np.sum(a0))
+        print('n(x1), layersize=', len(x1), layer.elementSize)
+        aa=True
         #
         todx = False
         if layer.planeType == 'Screen':
@@ -69,6 +74,9 @@ def updateAmplitudes(setup):
             #
             yre = np.sum(vre)
             yim = np.sum(vim)
+            if aa:
+                print('vre0, yre, yim, n = ', vre0[0], yre, yim, len(vre0))
+                aa = False
             amp1 = np.sqrt(yre**2 + yim**2)
             phase1 = np.arctan2(yim, yre)
             J = 1.0
@@ -79,6 +87,9 @@ def updateAmplitudes(setup):
                 r = math.sqrt(np.sum(dxmean**2))
                 J = 1.0/(r*math.cos(theta))
             amp1 *= J
+            if layer.planeType != 'Screen':
+                amp1 /= layer.elementSize
+                pass
             a1.append(amp1)
             p1.append(phase1)
         layer.updateAmplitudes(a1, p1)

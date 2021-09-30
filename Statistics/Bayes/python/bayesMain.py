@@ -78,42 +78,60 @@ def bayesMain(args):
         np.arange(muRange[0], muRange[1], dmu),
         np.arange(sigmaRange[0], sigmaRange[1], dsigma), 
         ]
+    parGrids = [
+        np.arange(muRange[0], muRange[1]+dmu, dmu),
+        np.arange(sigmaRange[0], sigmaRange[1]+dsigma, dsigma), 
+        ]
     parValues[0] += dmu/2.0
     parValues[1] += dsigma/2.0
     print('Parameter space %dx%d' % (len(parValues[0]), len(parValues[1])) )
-    xDist = genDist( (50.0, 6.0), 2)
+    n = 100
+    xDist = genDist( (50.0, 6.0), n)
     parDist2 = inferDist(xDist, parDist, parValues)
     parDist2 = np.exp(parDist2)
     #
     fig = plt.figure()
-    fig.add_subplot(3, 2, 1)
+    ax = fig.add_subplot(3, 2, 1)
     plt.hist(xDist, bins=nX, range=xRange )
+    ax.set_xlabel('X')
 
-    fig.add_subplot(3, 2, 2)
-    x, y = np.meshgrid(parValues[0], parValues[1])
-    n = nMu*nSigma;
+    x, y = np.meshgrid(parGrids[0], parGrids[1])
+    n = (nMu+1)*(nSigma+1);
     x2 = x.reshape(n)
     y2 = y.reshape(n)
     z2 = [parDist2[a, b] for a in range(nMu) for b in range(nSigma) ]
-    z = np.array(z2).reshape(nMu, nSigma)
+    z = np.array(z2).reshape(nSigma, nMu)
     print(len(x), len(y), len(z))
-    plt.pcolormesh(x, y, parDist2, cmap=plt.get_cmap('Greys'))
-    fig.add_subplot(3, 2, 3)
+    ax = fig.add_subplot(3, 2, 2)
+    plt.pcolormesh(x, y, z, cmap=plt.get_cmap('Greys'))
+    ax.set_xlabel('sigma')
+    ax.set_ylabel('mu')
+
+    ax = fig.add_subplot(3, 2, 3)
     x = np.arange(muRange[0], muRange[1], dmu)
     plt.plot(x, np.sum(parDist, axis=1))
-
-    fig.add_subplot(3, 2, 4)
+    ax.set_xlabel('mu')
+    ax.set_ylabel('P_pre(mu)')
+    
+    ax = fig.add_subplot(3, 2, 4)
     x = np.arange(sigmaRange[0], sigmaRange[1], dsigma)
     plt.plot(x, np.sum(parDist, axis=0))
+    ax.set_xlabel('sigma')
+    ax.set_ylabel('P_pre(sigma)')
 
-    fig.add_subplot(3, 2, 5)
+    ax = fig.add_subplot(3, 2, 5)
     x = np.arange(muRange[0], muRange[1], dmu)
     plt.plot(x, np.sum(parDist2, axis=1)*dsigma)
-
-    fig.add_subplot(3, 2, 6)
+    ax.set_ylabel('P(mu)')
+    ax.set_xlabel('mu')
+    
+    ax = fig.add_subplot(3, 2, 6)
     x = np.arange(sigmaRange[0], sigmaRange[1], dsigma)
     plt.plot(x, np.sum(parDist2, axis=0)*dmu)
+    ax.set_ylabel('P(sigma)')
+    ax.set_xlabel('sigma')
 
+    plt.subplots_adjust(hspace=0.6, wspace=0.5, left=0.15)
     plt.savefig('test.png')
     plt.show()
     
