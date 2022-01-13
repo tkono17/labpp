@@ -9,5 +9,6 @@ set(CMAKE_INSTALL_PREFIX ${DESTINATION})
 install(DIRECTORY python/ppstat 
        DESTINATION python 
        FILES_MATCHING PATTERN "*.py")
-install(PROGRAMS python/bayesMain.py DESTINATION bin)
+install(PROGRAMS python/bayesMain.py python/blurImage.py
+       DESTINATION bin)
 
