@@ -50,6 +50,9 @@ def parseArgs():
     parser.add_argument('--adaptProposalSigma', dest='adaptProposalSigma',
                         action='store_true', default=False,
                         help='Enable to adapt the proposal sigma to keep accept rate near 50%')
+    parser.add_argument('--adaptKernelSize', dest='adaptKernelSize',
+                        action='store_true', default=False,
+                        help='Enable to adapt the kernel size when proposal sigma is large')
     parser.add_argument('--initialCondition', dest='initialCondition',
                         type=str, default='zeros',
                         help='Initial condition to recover the image (zeros|ones|original)')
@@ -113,10 +116,22 @@ def filterWindow(mu, sigma, z=3):
             m[i,j] = y
     return m
 
-def blur(img, sigma):
+def blur(img, sigma, proposalSigma=None):
     from numpy.lib.stride_tricks import as_strided
     logger.debug('Create filter window')
     m = filterWindow(0.0, sigma)
+    if proposalSigma != None:
+        if proposalSigma > 1.0:
+            sigma2 = 0.4
+            m2 = filterWindow(0.0, sigma2)
+            ds = np.subtract(m.shape, m2.shape)
+            ds1, ds2 = int(ds[0]/2), int(ds[1]/2)
+            logger.debug('Adaptig kernel size %d:%d by %d:%d' % (*m.shape, *ds))
+            if ds1 > 0 and ds2 > 0:
+                m1 = np.ones(m.shape)
+                m1[ds1:-ds1,ds2:-ds2] = m2
+                m = m1
+        pass
     #print(m)
     img2shape = tuple(np.subtract(img.shape, m.shape)+1)
     logger.debug('Prepare sub-matrices for convolution'+str(img2shape) )
@@ -167,6 +182,7 @@ def proposeValue(i, j, dy, mat):
         
 def recover(img, sigma,
             proposalSigma=0.1, adaptProposalSigma=False,
+            adaptKernelSize=False, 
             chainName='chain', niterations=1,
             recordInterval=1000,
             initialCondition='original',
@@ -184,7 +200,10 @@ def recover(img, sigma,
     else:
         imgrec = np.zeros(img.shape)
 
-    imgrecblurred = blur(imgrec, sigma)
+    dy2 = None
+    if args.adaptKernelSize:
+        dy2 = dy
+    imgrecblurred = blur(imgrec, sigma, dy2)
     ds = np.subtract(img.shape, imgrecblurred.shape)
     ds1, ds2 = int(ds[0]/2), int(ds[1]/2)
 
@@ -316,7 +335,8 @@ def runBlurImage(args):
                          scanOrder=args.scanOrder, 
                          chainName=args.name, niterations=args.niterations,
                          proposalSigma=args.proposalSigma,
-                         adaptProposalSigma=args.adaptProposalSigma, 
+                         adaptProposalSigma=args.adaptProposalSigma,
+                         adaptKernelSize=args.adaptKernelSize, 
                          recordInterval=args.recordInterval)
         logger.info('Save recovered images')
         fname_rec = rename(os.path.basename(args.inputImage), '_rec')
