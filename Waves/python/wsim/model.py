@@ -145,7 +145,8 @@ class Source1(Slit1):
     def setElementSize(self, s):
         super().setElementSize(s)
         I = math.sqrt(self.intensity)/self.length
-        a = self.intensity/self.length
+        a = I
+        #a = self.intensity/self.length
         self.amplitudes = [a]*self.nElements
         self.phases = [0.0]*self.nElements
 

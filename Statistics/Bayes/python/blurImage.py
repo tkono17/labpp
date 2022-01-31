@@ -15,6 +15,8 @@ from ppstat import *
 
 logger = logging.getLogger(__name__)
 
+zScale = 256
+
 def parseArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--inputImage', dest='inputImage',
@@ -62,15 +64,21 @@ def parseArgs():
     parser.add_argument('-n', '--name', dest='name',
                         type=str, default='chain', 
                         help='Name of this Markov chain (will be saved to a pickle file)')
+    parser.add_argument('--zScale', dest='zScale',
+                        type=int, default=256,
+                        help='Resolution of the z-scale (2: binary, 256: 8 bits)')
     parser.add_argument('--logLevel', dest='logLevel',
                         type=str, default='INFO', 
-                        help='Log level (DEBUG|INFO|WARN|ERROR)')
+                        help='Log level (DEBUG|INFO|WARNING|ERROR)')
 
     
     return parser.parse_args()
 
 def bw(img):
     imgbw = np.mean(img, axis=2, dtype=int)
+    #s = float(zScale)/256
+    #imgbw = (imgbw*s).astype(int)
+    #logger.debug('Image z-resolution: %d (scale by %7.5f)' % (zScale, s))
     return imgbw
 
 def extractColor(img, color='BGR'):
@@ -126,9 +134,9 @@ def blur(img, sigma, proposalSigma=None):
             m2 = filterWindow(0.0, sigma2)
             ds = np.subtract(m.shape, m2.shape)
             ds1, ds2 = int(ds[0]/2), int(ds[1]/2)
-            logger.debug('Adaptig kernel size %d:%d by %d:%d' % (*m.shape, *ds))
+            logger.debug('Adaptive kernel size %d:%d by %d:%d' % (*m.shape, *ds))
             if ds1 > 0 and ds2 > 0:
-                m1 = np.ones(m.shape)
+                m1 = np.zeros(m.shape)
                 m1[ds1:-ds1,ds2:-ds2] = m2
                 m = m1
         pass
@@ -157,7 +165,7 @@ def acceptChange(cost, cost0, T=1.0):
 def proposeValue(i, j, dy, mat):
     # Hyper-parameters
     eta = 1.0
-    beta = 0.2
+    beta = 0.15
     #
     a0 = mat[i,j]
     a1, a2, a3, a4 = 0, 0, 0, 0
@@ -175,9 +183,14 @@ def proposeValue(i, j, dy, mat):
         a4 = mat[i, j+1]
         z += beta
     ymean = (eta*a0 + beta*(a1 + a2 + a3 + a4))/z
+    #dy1 = dy
+    #step = 256/zScale
+    #if dy1 < step: dy1 = step
     y = random.gauss(ymean, dy)
     if y < 0.0: y = 0
     elif y >= 255: y = 255
+    #s = float(zScale)/256
+    #y1 = int(y * s)
     return y
         
 def recover(img, sigma,
@@ -189,7 +202,9 @@ def recover(img, sigma,
             scanOrder='rowColumn'):
     nr, nc = img.shape[0], img.shape[1]
     dy = proposalSigma
-    dyMin, dyMax = 0.001, 100.0
+    #dyMin, dyMax = 0.001, 100.0
+    #dyMin, dyMax = 1.0, 100.0
+    dyMin, dyMax = 1.0, 3.0
     acceptRateMin, acceptRateMax = 0.1, 0.7
     if initialCondition == 'original':
         imgrec = np.copy(img)
@@ -217,8 +232,8 @@ def recover(img, sigma,
 
     def rowColumnGenerator(k, nr, nc):
         if k < (nr*nc):
-            i = int(k / nr)
-            j = int(k % nr)
+            i = int(k / nc)
+            j = int(k % nc)
             return (i, j)
         else:
             return None
@@ -249,7 +264,7 @@ def recover(img, sigma,
     # for i in range(nr):
     #     for j in range2:
     #         imgrec[i, j] = 0.0
-            
+
     for iter in range(niterations):
         step = 0
         nTries = 0
@@ -261,6 +276,7 @@ def recover(img, sigma,
             #i, j = ds1 + i2, ds2 + j2
             y0 = imgrec[i,j]
             y = proposeValue(i, j, dy, imgrec)
+            logger.debug('proposed value: %d->%d' % (y0, y) )
             imgrec[i,j] = y
             imgrecblurred = blur(imgrec, sigma)
             cost = np.sum( (imgrecblurred - imgsub)**2)
@@ -272,7 +288,7 @@ def recover(img, sigma,
                 nAccepts += 1
             else:
                 imgrec[i,j] = y0
-            if chain.shallRecord(iter, step):
+            if chain.shallRecord(iter, step, nr*nc):
                 acceptRate = float(nAccepts)/nTries
                 nTries, nAccepts = 0, 0
                     
@@ -304,7 +320,7 @@ def runBlurImage(args):
     if os.path.exists(args.inputImage):
         img = plt.imread(args.inputImage)
     else:
-        logger.warn('Cannot find file %s' % args.inputImage)
+        logger.warning('Cannot find file %s' % args.inputImage)
         return -1
     sigmaBlur = args.sigmaBlur
 
@@ -387,10 +403,11 @@ if __name__ == '__main__':
         logLevel = logging.DEBUG
     elif args.logLevel == 'INFO':
         logLevel = logging.INFO
-    elif args.logLevel == 'WARN':
-        logLevel = logging.WARN
+    elif args.logLevel == 'WARNING':
+        logLevel = logging.WARNING
     elif args.logLevel == 'ERROR':
         logLevel = logging.ERROR
     logging.basicConfig(stream=sys.stdout, level=logLevel)
+    zScale = args.zScale
     runBlurImage(args)
     

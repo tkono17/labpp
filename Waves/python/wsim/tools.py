@@ -88,7 +88,7 @@ def updateAmplitudes(setup):
                 J = 1.0/(r*math.cos(theta))
             amp1 *= J
             if layer.planeType != 'Screen':
-                amp1 /= layer.elementSize
+                #amp1 /= layer.elementSize
                 pass
             a1.append(amp1)
             p1.append(phase1)

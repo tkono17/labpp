@@ -27,9 +27,11 @@ class MarkovChain:
         self.niterations = niterations
         self.recordInterval = recordInterval
         self.records = []
-    def shallRecord(self, iteration, step):
+    def shallRecord(self, iteration, step, stepMax=-1):
         s = False
         if step == 0 or (step % self.recordInterval) == 0:
+            s = True
+        if stepMax > 0 and step == (stepMax-1):
             s = True
         return s
     def workDir(self):

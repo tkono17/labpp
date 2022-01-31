@@ -38,7 +38,7 @@ def singleSlit(args):
     setup.source = wsim.Source1(w0, (x0, -w0/2.0), 90.0*deg)
     setup.source.waveLength = wl
     setup.screen = wsim.Screen1(w2, (x2, -w2/2.0), 90.0*deg)
-    setup.addSlit(wsim.SingleSlit1(w1, b, (x1, -w1/2.0), 90.0*deg+alpha1))
+    setup.addSlit(wsim.SingleSlit1(w1, b, (x1, t1-w1/2.0), 90.0*deg+alpha1))
     setup.source.setIntensity(1.0)
     #
     dx0 = 10.0*nm
@@ -70,18 +70,18 @@ def singleSlit(args):
     x = setup.screen.allElements()
     a = setup.screen.allElementIntensities()
     x = np.array(x) + setup.screen.location[1]
-    a = np.array(a)
+    a = np.array(a)*2.0E+5
     #
     if len(setup.slits) == 0:
         b = args.w0
-    y = wsim.intensitySingleSlitX(x, b, wl, x2)
+    y = wsim.intensitySingleSlitX(x, b, wl, x2-x0)
     fig, ax = plt.subplots()
     if args.logy:
         plt.yscale('log')
     ax.plot(x, a)
     ax.plot(x, y, '--')
-    plt.show()
     plt.savefig('figures/singleSlit_l%dmm_1m.png' % int(abs(x0)))
+    plt.show()
 
     print('intensity at x=0: %e' % a[int(len(a)/2)])
     if len(setup.slits)>0:
