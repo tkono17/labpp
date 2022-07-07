@@ -1,0 +1,2 @@
+#define TrackVertex_VERSION_MAJOR @TrackVertex_VERSION_MAJOR@
+#define TrackVertex_VERSION_MINOR @TrackVertex_VERSION_MINOR@
