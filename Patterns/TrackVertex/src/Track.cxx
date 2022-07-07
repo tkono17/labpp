@@ -15,7 +15,7 @@ Track::Track(float rho, float d0, float phi0) {
 Track::~Track() {
 }
 
-void Track::updateDate(float rho, float d0, float phi0) {
+void Track::updateData(float rho, float d0, float phi0) {
   // Need to implement the calculation
 }
 
