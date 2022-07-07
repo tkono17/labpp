@@ -15,6 +15,10 @@ public:
 
   void updateData(float rho, float d0, float phi0);
 
+  void setData(float rho, float d0, float phi0);
+  
+  void setDataFrom(float p, float phi, const Point& xy);
+
   ClassDef(Track, 1)
   
 protected:
