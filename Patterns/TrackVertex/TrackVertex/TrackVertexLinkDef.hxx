@@ -5,3 +5,6 @@
 #include "TrackVertex/Square.hxx"
 
 #pragma link C++ class Point+;
+#pragma link C++ class Hit+;
+#pragma link C++ class Vertex+;
+#pragma link C++ class Square+;

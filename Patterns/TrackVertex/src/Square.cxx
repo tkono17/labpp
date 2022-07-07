@@ -3,6 +3,8 @@
 */
 #include "TrackVertex/Square.hxx"
 
+ClassImp(Square)
+
 Square::Square() {
   mLengths[0] = 0.0;
   mLengths[1] = 0.0;

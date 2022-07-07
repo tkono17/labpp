@@ -3,6 +3,8 @@
 */
 #include "TrackVertex/Track.hxx"
 
+ClassImp(Track)
+
 Track::Track(float rho, float d0, float phi0) {
   mNParameters = 3;
   mParameters[0] = rho;

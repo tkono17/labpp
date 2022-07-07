@@ -31,7 +31,11 @@ list(APPEND LIBS ${ROOT_LIBRARIES})
 file(GLOB LIB_SRCS src/[a-zA-Z]*.cxx)
 file(GLOB EXE_SRCS src/main/*.cxx)
 # file(GLOB DICT_HEADERS ${PROJECT_NAME}/[a-zA-Z].hxx)
-set(DICT_HEADERS TrackVertex/Point.hxx)
+set(DICT_HEADERS TrackVertex/Point.hxx
+  TrackVertex/Hit.hxx
+  TrackVertex/Track.hxx
+  TrackVertex/Square.hxx
+  )
 
 #####-------------------------------------------------------------
 ##### Standard macros to run

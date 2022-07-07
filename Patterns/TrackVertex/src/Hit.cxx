@@ -3,6 +3,8 @@
 */
 #include "TrackVertex/Hit.hxx"
 
+ClassImp(Hit)
+
 Hit::Hit() : mPosition(), mDetectorId(0) {
 }
 

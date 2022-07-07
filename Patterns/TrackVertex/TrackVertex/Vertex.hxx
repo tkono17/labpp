@@ -5,6 +5,7 @@
 */
 #include <cstdint>
 #include <list>
+#include "TObject.h"
 #include "TrackVertex/Point.hxx"
 #include "TrackVertex/Track.hxx"
 
@@ -12,6 +13,7 @@ class Vertex {
 public:
   Vertex();
   ~Vertex();
+
   
 protected:
   Point mPosition;

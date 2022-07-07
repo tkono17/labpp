@@ -4,14 +4,18 @@
   Track.hxx
 */
 #include <cstdint>
+#include "TObject.h"
+
 #include "TrackVertex/Point.hxx"
 
-class Track {
+class Track : public TObject {
 public:
   Track(float rho=0.0, float d0=0.0, float phi0=0.0);
   ~Track();
 
   void updateDate(float rho, float d0, float phi0);
+
+  ClassDef(Track, 1)
   
 protected:
   std::uint32_t mNParameters;
