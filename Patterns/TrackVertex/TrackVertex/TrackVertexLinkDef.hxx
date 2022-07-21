@@ -3,8 +3,10 @@
 #include "TrackVertex/Track.hxx"
 #include "TrackVertex/Vertex.hxx"
 #include "TrackVertex/Square.hxx"
+#include "TrackVertex/Event.hxx"
 
 #pragma link C++ class Point+;
 #pragma link C++ class Hit+;
 #pragma link C++ class Vertex+;
 #pragma link C++ class Square+;
+#pragma link C++ class Event+;
