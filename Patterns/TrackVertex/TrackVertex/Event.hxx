@@ -4,6 +4,9 @@
   Event.hxx
 */
 #include <vector>
+#include "TCanvas.h"
+#include "TPad.h"
+
 #include "TObject.h"
 #include "TrackVertex/Point.hxx"
 #include "TrackVertex/Track.hxx"
@@ -14,7 +17,8 @@ public:
   ~Event();
 
   void setGenerationPoint(const Point& p) { mGenerationPoint = p; }
-
+  const Point& generationPoint() const { return mGenerationPoint; }
+  
   void addTrack(Track* track);
 
   void clear();
@@ -27,4 +31,6 @@ protected:
   
 };
 
+void drawEvent(TPad* pad, const Event& event);
+  
 #endif // __Event_hxx__
