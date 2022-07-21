@@ -9,4 +9,5 @@
 #pragma link C++ class Hit+;
 #pragma link C++ class Vertex+;
 #pragma link C++ class Square+;
+#pragma link C++ class Track+;
 #pragma link C++ class Event+;
