@@ -23,9 +23,9 @@ void Track::setData(float rho, float d0, float phi0) {
 }
 
 void Track::setDataFrom(float p, float phi, const Point& xy) {
-  // float rho = ...;
-  // float d0 = ...;
-  // float phi0 = ...;
+  float rho = 0.0;
+  float d0 = 0.0;
+  float phi0 = 0.0;
   setData(rho, d0, phi0);
 }
 

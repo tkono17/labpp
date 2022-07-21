@@ -13,6 +13,9 @@ public:
 
   void setData(float x, float y);
 
+  float x() const { return mX[0]; }
+  float y() const { return mX[1]; }
+  
   void clear();
 
   ClassDef(Point, 1)
