@@ -5,6 +5,7 @@
 */
 #include <cstdint>
 #include "TObject.h"
+#include "TPad.h"
 
 #include "TrackVertex/Point.hxx"
 
@@ -17,8 +18,11 @@ public:
 
   void setData(float rho, float d0, float phi0);
   
-  void setDataFrom(float p, float phi, const Point& xy);
+  void setDataPPhiXY(float p, float phi, const Point& xy);
 
+  float circleR() const { return mCircleR; }
+  const Point& circleCenter() const { return mCircleCenter; }
+  
   ClassDef(Track, 1)
   
 protected:
@@ -33,5 +37,7 @@ protected:
   float mCircleStartPhi;
   bool mCircleClockwize;
 };
+
+void drawTrack(TPad* pad, const Track& track);
 
 #endif  // __TrackVertex_Track_hxx__

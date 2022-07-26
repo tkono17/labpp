@@ -19,8 +19,11 @@ public:
   void setGenerationPoint(const Point& p) { mGenerationPoint = p; }
   const Point& generationPoint() const { return mGenerationPoint; }
   
+  void addTrack(const Track& track);
   void addTrack(Track* track);
 
+  const std::vector<Track*>& tracks() const { return mTracks; }
+  
   void clear();
   
   ClassDef(Event, 1)

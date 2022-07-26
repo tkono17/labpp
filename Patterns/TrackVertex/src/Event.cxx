@@ -19,6 +19,10 @@ void Event::addTrack(Track* track) {
   mTracks.push_back(track);
 }
 
+void Event::addTrack(const Track& track) {
+  mTracks.push_back(new Track(track));
+}
+
 void Event::clear() {
   for (auto t: mTracks) {
     if (t) {
@@ -36,4 +40,7 @@ void drawEvent(TPad* pad, const Event& event) {
   float r = 1.0;
   TEllipse* c = new TEllipse(point.x(), point.y(), r);
   c->Draw();
+  for (auto track: event.tracks()) {
+    drawTrack(pad, *track);
+  }
 }
