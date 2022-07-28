@@ -18,11 +18,14 @@ public:
 
   void setData(float rho, float d0, float phi0);
   
-  void setDataPPhiXY(float p, float phi, const Point& xy);
-
-  float circleR() const { return mCircleR; }
-  const Point& circleCenter() const { return mCircleCenter; }
+  void setDataPPhiXY(float p, float phi, const Point& xy, float charge=1.0);
   
+  float charge() const { return mCharge; }
+
+  const Point& circleCenter() const { return mCircleCenter; }
+  float circleR() const { return mCircleR; }
+  float circleStartPhi() const { return mCircleStartPhi; }
+    
   ClassDef(Track, 1)
   
 protected:

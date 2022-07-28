@@ -3,6 +3,7 @@
 /*
   Event.hxx
 */
+#include <cstdint>
 #include <vector>
 #include "TCanvas.h"
 #include "TPad.h"
@@ -10,8 +11,12 @@
 #include "TObject.h"
 #include "TrackVertex/Point.hxx"
 #include "TrackVertex/Track.hxx"
+#include "TrackVertex/Hit.hxx"
 
 class Event : public TObject {
+public:
+  typedef std::vector<std::uint32_t> IndexList;
+  
 public:
   Event();
   ~Event();
@@ -22,6 +27,16 @@ public:
   void addTrack(const Track& track);
   void addTrack(Track* track);
 
+  std::uint32_t trackIndex(const Track* track) const;
+  bool trackIndexValid(std::uint32_t index) const;
+  
+  void addHitsOnTrack(const Track* track, std::vector<Hit*>& hits);
+  
+  void addHit(const Hit& hit);
+  void addHit(Hit* hit);
+  
+  const std::vector<Hit*>& hits() const { return mHits; }
+  
   const std::vector<Track*>& tracks() const { return mTracks; }
   
   void clear();
@@ -31,6 +46,8 @@ public:
 protected:
   Point mGenerationPoint;
   std::vector<Track*> mTracks;
+  std::vector<Hit*> mHits;
+  std::vector<IndexList> mTrackHits;
   
 };
 

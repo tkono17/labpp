@@ -8,7 +8,7 @@
 
 ClassImp(Event)
 
-Event::Event() : TObject() {
+Event::Event() : TObject(), mTracks(), mHits(), mTrackHits() {
 }
 
 Event::~Event() {
@@ -23,14 +23,63 @@ void Event::addTrack(const Track& track) {
   mTracks.push_back(new Track(track));
 }
 
+std::uint32_t Event::trackIndex(const Track* track) const {
+  std::uint32_t i=0;
+  for (i=0; i<mTracks.size(); ++i) {
+    if (mTracks[i] == track) {
+      break;
+    }
+  }
+  return i;
+}
+
+bool Event::trackIndexValid(std::uint32_t index) const {
+  return (index < mTracks.size());
+}
+
+void Event::addHitsOnTrack(const Track* track, std::vector<Hit*>& hits) {
+  auto itrack = trackIndex(track);
+
+  if (trackIndexValid(itrack)) {
+    if (mTrackHits.size() < mTracks.size()) {
+      mTrackHits.resize(mTracks.size());
+    }
+    IndexList hitList;
+    std::uint32_t ihit = mHits.size();
+    for (auto& hit: hits) {
+      hitList.push_back(ihit);
+      addHit(hit);
+      ++ihit;
+    }
+    mTrackHits[itrack] = hitList;
+  }
+}
+  
+void Event::addHit(const Hit& hit) {
+  mHits.push_back(new Hit(hit));
+}
+
+void Event::addHit(Hit* hit) {
+  mHits.push_back(hit);
+}
+
 void Event::clear() {
   for (auto t: mTracks) {
     if (t) {
       delete t;
       t = nullptr;
     }
-    mTracks.clear();
   }
+  mTracks.clear();
+  
+  for (auto x: mHits) {
+    if (x) {
+      delete x;
+      x = nullptr;
+    }
+  }
+  mHits.clear();
+  mTrackHits.clear();
 }
 
 void drawEvent(TPad* pad, const Event& event) {

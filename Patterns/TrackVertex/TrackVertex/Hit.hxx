@@ -14,6 +14,10 @@ public:
   Hit(const Point& p, std::uint32_t detectorId);
   ~Hit();
 
+  const Point& position() const { return mPosition; }
+
+  void smear(float sigma);
+  
   ClassDef(Hit, 1)
   
 protected:
