@@ -1,6 +1,8 @@
 /*
   SimpleDetector.cxx
 */
+#include <cmath>
+
 #include "TrackVertex/SimpleDetector.hxx"
 
 ClassImp(SimpleDetector)
@@ -37,14 +39,19 @@ float SimpleDetector::radiusOfLayer(std::uint32_t layer) const {
   return r;
 }
 
-bool intersectionAtLayer(const Track& track, std::uint32_t layer) const {
+bool SimpleDetector::intersectionAtLayer(const Track& track,
+					 std::uint32_t layer,
+					 Point& point) const {
   bool ok = false;
   float r = radiusOfLayer(layer);
 
   if (r > 0.0) {
     auto& c = track.circleCenter();
-    auto r1 = track.circleRadius();
+    auto r1 = track.circleR();
+    auto phi = track.circleStartPhi();
     if (c.length() < (r + r1)) {
+      ok = true;
+      point.setData(r*std::cos(phi), r*std::sin(phi));
     }
   }
   

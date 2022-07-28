@@ -57,8 +57,15 @@ void generateTracks() {
       if (random.Uniform(-1.0, 1.0) < 0.0) charge = -1.0;
       track.setDataPPhiXY(p, phi, genPoint, charge);
       event->addTrack(track);
-
-      
+      auto nlayers = det->nLayers();
+      pbox::Point hitp;
+      std::vector<Hit*> hits;
+      for (std::uint32_t ilayer=0; ilayer<nlayers; ++ilayer) {
+	if (det->intersectionAtLayer(track, ilayer, p)) {
+	  hits.push_back(new Hit(hitp, 0));
+	}
+      }
+      event->addHitsOnTrack(track, hits);
     }
     t->Fill();
   }

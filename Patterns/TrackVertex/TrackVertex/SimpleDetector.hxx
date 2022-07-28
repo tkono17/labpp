@@ -8,6 +8,8 @@
 #include "TNamed.h"
 
 #include "TrackVertex/Point.hxx"
+#include "TrackVertex/Track.hxx"
+#include "TrackVertex/Hit.hxx"
 
 class SimpleDetector : public TNamed {
 public:
