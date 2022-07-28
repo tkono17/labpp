@@ -37,19 +37,14 @@ float SimpleDetector::radiusOfLayer(std::uint32_t layer) const {
   return r;
 }
 
-bool intersectionAtLayer(const Track& track, std::uint32_t layer,
-			 Point& point) const {
+bool intersectionAtLayer(const Track& track, std::uint32_t layer) const {
   bool ok = false;
   float r = radiusOfLayer(layer);
 
-  point.setData(0.0, 0.0);
   if (r > 0.0) {
     auto& c = track.circleCenter();
     auto r1 = track.circleRadius();
-    auto phi0 = track.cirleStartPhi();
-    if (c.length() < (r+r1) ) {
-      ok = true;
-      point.setData(r*std::cos(phi0), r*std::sin(phi0));
+    if (c.length() < (r + r1)) {
     }
   }
   
