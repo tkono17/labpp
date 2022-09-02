@@ -58,14 +58,15 @@ void generateTracks() {
       track.setDataPPhiXY(p, phi, genPoint, charge);
       event->addTrack(track);
       auto nlayers = det->nLayers();
-      pbox::Point hitp;
+      Point hitp;
       std::vector<Hit*> hits;
+      //      std::cout << "hits for track " << itrack << std::endl;
       for (std::uint32_t ilayer=0; ilayer<nlayers; ++ilayer) {
-	if (det->intersectionAtLayer(track, ilayer, p)) {
+	if (det->intersectionAtLayer(track, ilayer, hitp)) {
 	  hits.push_back(new Hit(hitp, 0));
 	}
       }
-      event->addHitsOnTrack(track, hits);
+      event->addHitsOnTrack(i, hits);
     }
     t->Fill();
   }

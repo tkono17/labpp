@@ -31,6 +31,7 @@ public:
   bool trackIndexValid(std::uint32_t index) const;
   
   void addHitsOnTrack(const Track* track, std::vector<Hit*>& hits);
+  void addHitsOnTrack(std::uint32_t itrack, std::vector<Hit*>& hits);
   
   void addHit(const Hit& hit);
   void addHit(Hit* hit);

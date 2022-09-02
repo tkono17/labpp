@@ -25,7 +25,9 @@ public:
   const Point& circleCenter() const { return mCircleCenter; }
   float circleR() const { return mCircleR; }
   float circleStartPhi() const { return mCircleStartPhi; }
-    
+
+  float angleAtPerigee() const;
+  
   ClassDef(Track, 1)
   
 protected:

@@ -17,6 +17,11 @@ public:
   float x() const { return mX[0]; }
   float y() const { return mX[1]; }
 
+  Point operator+(const Point& p) const;
+  Point operator-(const Point& p) const;
+
+  float abs() const;
+  float abs2() const;
   float length() const { return std::sqrt(mX[0]*mX[0] + mX[1]*mX[1]); }
   
   void clear();

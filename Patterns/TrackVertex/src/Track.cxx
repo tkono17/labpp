@@ -90,6 +90,15 @@ void Track::updateData(float rho, float d0, float phi0) {
   // .....
 }
 
+float Track::angleAtPerigee() const {
+  // float qOverR = mParameters[0];
+  // float d0 = mParameters[1];
+  float phi0 = mParameters[2];
+  // float phi = 0.0;
+
+  return phi0;
+}
+
 void drawTrack(TPad* pad, const Track& track) {
   float r = track.circleR();
   auto& c = track.circleCenter();

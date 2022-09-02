@@ -1,6 +1,7 @@
 /*
   Event.cxx
 */
+#include <iostream>
 #include "TEllipse.h"
 #include "TH1.h"
 
@@ -27,6 +28,7 @@ std::uint32_t Event::trackIndex(const Track* track) const {
   std::uint32_t i=0;
   for (i=0; i<mTracks.size(); ++i) {
     if (mTracks[i] == track) {
+      std::cout << "Found matching track " << i << std::endl;
       break;
     }
   }
@@ -37,15 +39,17 @@ bool Event::trackIndexValid(std::uint32_t index) const {
   return (index < mTracks.size());
 }
 
-void Event::addHitsOnTrack(const Track* track, std::vector<Hit*>& hits) {
-  auto itrack = trackIndex(track);
+void Event::addHitsOnTrack(std::uint32_t itrack, std::vector<Hit*>& hits) {
+  IndexList hitList;
+  if (mTrackHits.size() == 0) mTrackHits.assign(mTracks.size(), hitList);
 
+  //  std::cout << "itrack " << itrack << "/" << mTracks.size()<< std::endl;
   if (trackIndexValid(itrack)) {
     if (mTrackHits.size() < mTracks.size()) {
       mTrackHits.resize(mTracks.size());
     }
-    IndexList hitList;
     std::uint32_t ihit = mHits.size();
+    hitList.clear();
     for (auto& hit: hits) {
       hitList.push_back(ihit);
       addHit(hit);
@@ -53,6 +57,11 @@ void Event::addHitsOnTrack(const Track* track, std::vector<Hit*>& hits) {
     }
     mTrackHits[itrack] = hitList;
   }
+}
+
+void Event::addHitsOnTrack(const Track* track, std::vector<Hit*>& hits) {
+  auto itrack = trackIndex(track);
+  addHitsOnTrack(itrack, hits);
 }
   
 void Event::addHit(const Hit& hit) {

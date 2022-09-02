@@ -18,6 +18,26 @@ void Point::setData(float x, float y) {
   mX[1] = y;
 }
 
+float Point::abs() const {
+  return length();
+}
+
+float Point::abs2() const {
+  return (mX[0]*mX[0] + mX[1]*mX[1]);
+}
+
+Point Point::operator+(const Point& p) const {
+  float x1 = x() + p.x();
+  float y1 = y() + p.y();
+  return Point(x1, y1);
+}
+
+Point Point::operator-(const Point& p) const {
+  float x1 = x() - p.x();
+  float y1 = y() - p.y();
+  return Point(x1, y1);
+}
+
 void Point::clear() {
   setData(0.0, 0.0);
 }

@@ -60,7 +60,7 @@ void EventDisplay::drawEvent(const Event& event) {
     drawHit(*hit);
   }
 }
-  
+
 void EventDisplay::drawEvent(const Event& event,
 			     const SimpleDetector& det) {
   if (mPad == nullptr) {
@@ -74,10 +74,10 @@ void EventDisplay::drawEvent(const Event& event,
 
 void EventDisplay::drawHit(const Hit& hit) {
   if (mPad) {
-    float r = 1.0;
+    float r = 5.0;
     auto& p = hit.position();
     TEllipse* c = new TEllipse(p.x(), p.y(), r);
-    c->SetLineColor(kBlue);
+    c->SetLineColor(kRed);
     c->SetFillStyle(0);
     c->Draw();
   }
