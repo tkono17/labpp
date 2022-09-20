@@ -19,6 +19,10 @@ Hit::Hit(const Point& p, std::uint32_t detectorId) :
 Hit::~Hit() {
 }
 
+float Hit::phi() const {
+  return std::atan2(mPosition.y(), mPosition.x());
+}
+
 void Hit::smear(float sigma) {
   if (gRandom == nullptr) {
     TRandom3 r;

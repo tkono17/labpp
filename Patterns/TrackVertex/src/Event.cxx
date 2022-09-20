@@ -72,6 +72,17 @@ Event::IndexList Event::hitsOnTrack(std::uint32_t itrack) const {
   return v;
 }
 
+std::vector<Hit*> Event::getHits(const IndexList& hitIndices) const {
+  std::vector<Hit*> hits;
+  for (auto i: hitIndices) {
+    std::uint32_t nhits = mHits.size();
+    if (i < nhits) {
+      hits.push_back(mHits[i]);
+    }
+  }
+  return hits;
+}
+
 void Event::addHit(const Hit& hit) {
   mHits.push_back(new Hit(hit));
 }

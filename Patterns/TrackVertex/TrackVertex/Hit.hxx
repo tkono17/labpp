@@ -4,6 +4,8 @@
   Hit.hxx
 */
 #include <cstdint>
+#include <cmath>
+
 #include "TObject.h"
 
 #include "TrackVertex/Point.hxx"
@@ -16,6 +18,8 @@ public:
 
   const Point& position() const { return mPosition; }
 
+  float phi() const;
+  
   void smear(float sigma);
   
   ClassDef(Hit, 1)
