@@ -63,7 +63,15 @@ void Event::addHitsOnTrack(const Track* track, std::vector<Hit*>& hits) {
   auto itrack = trackIndex(track);
   addHitsOnTrack(itrack, hits);
 }
-  
+
+Event::IndexList Event::hitsOnTrack(std::uint32_t itrack) const {
+  IndexList v;
+  if (itrack < mTrackHits.size()) {
+    v = mTrackHits[itrack];
+  }
+  return v;
+}
+
 void Event::addHit(const Hit& hit) {
   mHits.push_back(new Hit(hit));
 }

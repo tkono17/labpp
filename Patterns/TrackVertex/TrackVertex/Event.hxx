@@ -32,6 +32,7 @@ public:
   
   void addHitsOnTrack(const Track* track, std::vector<Hit*>& hits);
   void addHitsOnTrack(std::uint32_t itrack, std::vector<Hit*>& hits);
+  IndexList hitsOnTrack(std::uint32_t itrack) const;
   
   void addHit(const Hit& hit);
   void addHit(Hit* hit);
