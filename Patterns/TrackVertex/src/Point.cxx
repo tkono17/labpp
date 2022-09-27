@@ -38,6 +38,11 @@ Point Point::operator-(const Point& p) const {
   return Point(x1, y1);
 }
 
+float Point::distance(const Point& p) const {
+  Point dp = (*this) - p;
+  return dp.length();
+}
+
 void Point::clear() {
   setData(0.0, 0.0);
 }

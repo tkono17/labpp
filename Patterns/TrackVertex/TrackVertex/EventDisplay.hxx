@@ -33,7 +33,7 @@ public:
 
   void drawHit(const Hit& hit);
   
-  void drawTrack(const Track& track);
+  void drawTrack(const Track& track, int color=2);
 
   void drawDetector(const SimpleDetector& det);
   

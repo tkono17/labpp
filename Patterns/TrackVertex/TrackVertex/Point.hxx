@@ -23,6 +23,8 @@ public:
   float abs() const;
   float abs2() const;
   float length() const { return std::sqrt(mX[0]*mX[0] + mX[1]*mX[1]); }
+
+  float distance(const Point& p) const;
   
   void clear();
 

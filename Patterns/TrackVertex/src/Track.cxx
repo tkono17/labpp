@@ -88,6 +88,25 @@ void Track::updateData(float rho, float d0, float phi0) {
   // mPtAtDCA = ....;
   // mCircleCenter = Point(x, y);
   // .....
+  if (std::fabs(rho) < 1.0E-7) {
+    if (rho >= 0.0) {
+      rho = 1.0E-7;
+    } else {
+      rho = -1.0E-7;
+    }
+  }
+  double R = std::fabs(1.0/rho);
+  double a = 1.0/rho + d0;
+  double beta = phi0 - TMath::Pi()/2.0;
+  double cx = a*std::cos(beta);
+  double cy = a*std::sin(beta);
+  mCharge = rho/std::fabs(rho);
+  mCircleCenter = Point(cx, cy);
+  mCircleR = R;
+  mCircleStartPhi = beta;
+  //    mCircleStartPhi = beta + TMath::Pi()/2.0;
+  // std::cout << "U rho=" << rho << ", d0=" << d0 << ", phi0=" << phi0 << std::endl;
+  // std::cout << "  cx=" << cx << ", cy=" << cy << ", R=" << R << std::endl;
 }
 
 float Track::angleAtPerigee() const {
@@ -119,5 +138,11 @@ void drawTrack(TPad* pad, const Track& track) {
   arc->SetLineColor(kBlue-2);
   arc->SetLineWidth(1);
   arc->SetFillStyle(0);
-  arc->Draw("only");
+  //  arc->Draw("only");
+}
+
+double Track::distance(const Hit& hit) const {
+  auto p = hit.position();
+  double d = p.distance(mCircleCenter) - mCircleR;
+  return d;
 }

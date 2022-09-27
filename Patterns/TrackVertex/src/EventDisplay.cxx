@@ -53,7 +53,7 @@ void EventDisplay::drawEvent(const Event& event) {
   c->Draw();
 
   for (auto track: event.tracks()) {
-    drawTrack(*track);
+    drawTrack(*track, kBlue);
   }
 
   for (auto hit: event.hits()) {
@@ -83,7 +83,7 @@ void EventDisplay::drawHit(const Hit& hit) {
   }
 }
 
-void EventDisplay::drawTrack(const Track& track) {
+void EventDisplay::drawTrack(const Track& track, int color) {
   if (mPad) {
     float r = track.circleR();
     auto& c = track.circleCenter();
@@ -97,11 +97,16 @@ void EventDisplay::drawTrack(const Track& track) {
     } else {
       phi2 = phi1 + dphi;
     }
-    
+    float cx = c.x();
+    float cy = c.y();
+
+    std::cout << "Eventdisplay draw track" << std::endl;
+    std::cout << "  r = " << r << ", startPhi: " << phi1 << " - " << phi2 
+	      << ", cx=" << cx << ", cy=" << cy << std::endl;
     const float deg = 180.0/TMath::Pi();
     
     TArc* arc = new TArc(c.x(), c.y(), r, phi1*deg, phi2*deg);
-    arc->SetLineColor(kBlue-2);
+    arc->SetLineColor(color);
     arc->SetLineWidth(1);
     arc->SetFillStyle(0);
     arc->Draw("only");

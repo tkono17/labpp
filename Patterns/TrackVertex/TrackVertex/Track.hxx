@@ -8,11 +8,14 @@
 #include "TPad.h"
 
 #include "TrackVertex/Point.hxx"
+#include "TrackVertex/Hit.hxx"
 
 class Track : public TObject {
 public:
   Track(float rho=0.0, float d0=0.0, float phi0=0.0);
   ~Track();
+
+  float parameter(int i) const { return mParameters[i]; }
 
   void updateData(float rho, float d0, float phi0);
 
@@ -27,6 +30,8 @@ public:
   float circleStartPhi() const { return mCircleStartPhi; }
 
   float angleAtPerigee() const;
+
+  double distance(const Hit& hit) const;
   
   ClassDef(Track, 1)
   
