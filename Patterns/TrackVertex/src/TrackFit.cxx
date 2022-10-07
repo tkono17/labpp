@@ -29,11 +29,19 @@ double TrackFit::calculateChi2(const double* p) {
   // p[2]: phi0
   double chi2 = 0.0;
   double sigma = 0.05;
+  Track track;
   
-  mTrack.setData(p[0], p[1], p[2]);
+  track.setData(p[0], p[1], p[2]);
 
+  std::cout << "Track r=" << track.circleR()
+	    << " c=(" << track.circleCenter().x() << ", "
+	    << track.circleCenter().y() << ")"
+	    << std::endl;
+  int i=0;
   for (auto phit: mHits) {
-    double d = mTrack.distance(*phit);
+    double d = track.distance(*phit);
+    std::cout << "  hit[" << i << "] distance=" << d << std::endl;
+    i ++;
     d /= sigma;
     chi2 += d*d;
   }

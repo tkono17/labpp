@@ -26,6 +26,7 @@ public:
 
   bool intersectionAtLayer(const Track& track, std::uint32_t layer,
 			   Point& point) const;
+  Hit smearHitAtLayer(const Hit& hit, std::uint32_t layer, float resolution);
   
   ClassDef(SimpleDetector, 1)
   

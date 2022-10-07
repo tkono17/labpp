@@ -12,9 +12,7 @@ ClassImp(Track)
 
 Track::Track(float rho, float d0, float phi0) {
   mNParameters = 3;
-  mParameters[0] = rho;
-  mParameters[1] = d0;
-  mParameters[2] = phi0;
+  setData(rho, d0, phi0);
 }
 
 Track::~Track() {
@@ -27,10 +25,10 @@ void Track::setData(float rho, float d0, float phi0) {
   updateData(rho, d0, phi0);
 }
 
-void Track::setDataPPhiXY(float p, float phi, const Point& xy, float charge) {
-  float B = 1.0; // [T}
+void Track::setDataPPhiXY(float p, float phi, const Point& xy,
+			  float charge, float B) {
   float r = p/(0.3*B) * 1.0E+3; // [mm]
-  float rho = 1/r;
+  float rho = charge/r;
   mCharge = charge;
 
   float px = std::cos(phi);
@@ -52,34 +50,27 @@ void Track::setDataPPhiXY(float p, float phi, const Point& xy, float charge) {
   float dx = (c - r)*ucx;
   float dy = (c - r)*ucy;
   float d0 = std::sqrt(dx*dx + dy*dy);
-  float phi0 = std::atan2(dy, dx) + TMath::Pi()/2.0;
+  float phi0 = std::atan2(cy, cx);
+
   if (charge > 0.0 && c >= r) {
-    dx = (c - r)*ucx;
-    dy = (c - r)*ucy;
-    d0 = std::sqrt(dx*dx + dy*dy);
-    phi0 = std::atan2(dy, dx) + TMath::Pi()/2.0;
+    phi0 += TMath::Pi()/2.0;
   } else if (charge > 0.0 && c < r) {
-    dx = (c - r)*ucx;
-    dy = (c - r)*ucy;
-    d0 = -std::sqrt(dx*dx + dy*dy);
-    phi0 = std::atan2(dy, dx) - TMath::Pi()/2.0;
+    d0 -= -1.0;
+    phi0 -= TMath::Pi()/2.0;
   } else if (charge < 0.0 && c >= r) {
-    dx = (c - r)*ucx;
-    dy = (c - r)*ucy;
-    d0 = +std::sqrt(dx*dx + dy*dy);
-    phi0 = std::atan2(dy, dx) - TMath::Pi()/2.0;
+    phi0 -= TMath::Pi()/2.0;
   } else if (charge < 0.0 && c < r) {
-    dx = (c - r)*ucx;
-    dy = (c - r)*ucy;
-    d0 = -std::sqrt(dx*dx + dy*dy);
-    phi0 = std::atan2(dy, dx) + TMath::Pi()/2.0;
+    d0 -= -1.0;
+    phi0 += TMath::Pi()/2.0;
   }
 
-  mCircleCenter.setData(cx, cy);
-  mCircleR = std::fabs(r);
-  mCircleStartPhi = std::atan2(-qy, -qx);
-  
+  // std::cout << "Track p=" << p << ", phi=" << phi << std::endl;
+  // std::cout << "Track phi0: " << phi0
+  // 	    << " u=(" << ucx << ", " << ucy << ")" 
+  // 	    << " dx=(" << dx << ", " << dy << ")" 
+  // 	    << std::endl;
   setData(rho, d0, phi0);
+  // std::cout << "Track cx,cy=(" << cx << ", " << cy << ")" << std::endl;
 }
 
 void Track::updateData(float rho, float d0, float phi0) {
@@ -88,25 +79,26 @@ void Track::updateData(float rho, float d0, float phi0) {
   // mPtAtDCA = ....;
   // mCircleCenter = Point(x, y);
   // .....
-  if (std::fabs(rho) < 1.0E-7) {
+  if (std::fabs(rho) < 1.0E-10) {
     if (rho >= 0.0) {
       rho = 1.0E-7;
     } else {
-      rho = -1.0E-7;
+      rho = -1.0E-10;
     }
   }
   double R = std::fabs(1.0/rho);
-  double a = 1.0/rho + d0;
+  double a = R + d0;
+  if (rho < 0.0) a = R - d0;
+  
   double beta = phi0 - TMath::Pi()/2.0;
+  if (rho < 0.0) beta = phi0 + TMath::Pi()/2.0;
   double cx = a*std::cos(beta);
   double cy = a*std::sin(beta);
+  //  std::cout << "beta = " << beta << std::endl;
   mCharge = rho/std::fabs(rho);
   mCircleCenter = Point(cx, cy);
   mCircleR = R;
-  mCircleStartPhi = beta;
-  //    mCircleStartPhi = beta + TMath::Pi()/2.0;
-  // std::cout << "U rho=" << rho << ", d0=" << d0 << ", phi0=" << phi0 << std::endl;
-  // std::cout << "  cx=" << cx << ", cy=" << cy << ", R=" << R << std::endl;
+  mCircleStartPhi = std::atan2(-cy, -cx);
 }
 
 float Track::angleAtPerigee() const {

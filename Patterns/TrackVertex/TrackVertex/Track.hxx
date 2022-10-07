@@ -21,7 +21,8 @@ public:
 
   void setData(float rho, float d0, float phi0);
   
-  void setDataPPhiXY(float p, float phi, const Point& xy, float charge=1.0);
+  void setDataPPhiXY(float p, float phi, const Point& xy,
+		     float charge=1.0, float B=1.0);
   
   float charge() const { return mCharge; }
 

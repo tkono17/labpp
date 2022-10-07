@@ -2,6 +2,7 @@
   SimpleDetector.cxx
 */
 #include <cmath>
+#include <iostream>
 
 #include "TrackVertex/SimpleDetector.hxx"
 
@@ -55,6 +56,12 @@ bool SimpleDetector::intersectionAtLayer(const Track& track,
     float phi0 = track.angleAtPerigee();
     float nx = std::cos(phi0);
     float ny = std::sin(phi0);
+
+    // std::cout << "phi0 = " << phi0 << std::endl;
+    // std::cout << "Intersection: r1=" << r1 <<
+    //   ", (" << c1.x() << ", " << c1.y() << ")" << std::endl;
+    // std::cout << "   r2=" << r2 <<
+    //   ", (" << c2.x() << ", " << c2.y() << ")" << std::endl;
     
     if ( (l < r1 && l > dr) || (l < (r1 + r2) ) ) {
       ok = true;
@@ -62,38 +69,32 @@ bool SimpleDetector::intersectionAtLayer(const Track& track,
       float y = 0.0;
 
       Point dc = c2 - c1;
-      float a = 2.0*dc.x();
-      float b = 2.0*dc.y();
-      float c = r1*r1 - r2*r2 - (c1.abs2() - c2.abs2());
-      if (std::fabs(a) >= std::fabs(b)) {
-	float A1 = -b/a;
-	float B1 = c/a + c1.x();
-	float A = A1*A1 + 1;
-	float B = -A1*B1 - c1.y();
-	float C = c1.y()*c1.y() + B1*B1 - r1*r1;
-	if (ny > 0.0) {
-	   y = (-B + std::sqrt(B*B - A*C) )/A;
-	} else {
-	   y = (-B - std::sqrt(B*B - A*C) )/A;
-	}
-	x = -(b*y + c)/a;
-      } else {
-	float A1 = -a/b;
-	float B1 = c/b + c1.y();
-	float A = A1*A1 + 1;
-	float B = -A1*B1 - c1.x();
-	float C = c1.x()*c1.x() + B1*B1 - r1*r1;
-	if (nx > 0.0) {
-	  x = (-B + std::sqrt(B*B - A*C) )/A;
-	} else {
-	  x = (-B - std::sqrt(B*B - A*C) )/A;
-	}
-	y = -(a*x + c)/b;
-      }
+      float cx = dc.x();
+      float cy = dc.y();
+      float c = dc.length();
+      float ux = cx/c;
+      float uy = cy/c;
+      float e = (r1*r1 - r2*r2 + l*l)/(2.0*l);
+      float cs = e/r1;
+      float t = r1*std::sqrt(1.0 - cs*cs);
+      float ax = c1.x() + e*ux;
+      float ay = c1.y() + e*uy;
+      // std::cout << "  c=" << c << ", u=(" << ux << ", " << uy << ")" << std::endl;
+      // std::cout << "  t = " << t << std::endl;
+      // std::cout << "  a = (" << ax << ", " << ay << ")" << std::endl;
+      x = ax + t*nx;
+      y = ay + t*ny;
       point.setData(x, y);
     }
   }
   
   return ok;
+}
+
+Hit SimpleDetector::smearHitAtLayer(const Hit& hit,
+				    std::uint32_t /*layer*/, float resolution) {
+  Hit hit1(hit);
+  hit1.smear(resolution);
+  return hit1;
 }
 

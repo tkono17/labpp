@@ -31,7 +31,7 @@ void Hit::smear(float sigma) {
   if (gRandom) {
     float dl = gRandom->Gaus(0.0, sigma);
     float x = mPosition.x();
-    float y = mPosition.x();
+    float y = mPosition.y();
     float r = std::sqrt(x*x + y*y);
     float phi = std::atan2(y, x);
     float dphi = dl/r;

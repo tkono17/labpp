@@ -100,9 +100,9 @@ void EventDisplay::drawTrack(const Track& track, int color) {
     float cx = c.x();
     float cy = c.y();
 
-    std::cout << "Eventdisplay draw track" << std::endl;
-    std::cout << "  r = " << r << ", startPhi: " << phi1 << " - " << phi2 
-	      << ", cx=" << cx << ", cy=" << cy << std::endl;
+    // std::cout << "Eventdisplay draw track" << std::endl;
+    // std::cout << "  r = " << r << ", startPhi: " << phi1 << " - " << phi2 
+    // 	      << ", cx=" << cx << ", cy=" << cy << std::endl;
     const float deg = 180.0/TMath::Pi();
     
     TArc* arc = new TArc(c.x(), c.y(), r, phi1*deg, phi2*deg);
@@ -110,6 +110,12 @@ void EventDisplay::drawTrack(const Track& track, int color) {
     arc->SetLineWidth(1);
     arc->SetFillStyle(0);
     arc->Draw("only");
+    // std::cout << "arc: c=(" << c.x() << ", " << c.y()
+    // 	    << " r=" << r
+    // 	    << " phi1=" << phi1*deg
+    // 	    << " phi2=" << phi2*deg
+    // 	    << std::endl;
+
   }
 }
 
