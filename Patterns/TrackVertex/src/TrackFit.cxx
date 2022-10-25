@@ -90,8 +90,10 @@ int TrackFit::fitHits(const std::vector<Hit*>& hits, const Track& track) {
   const double* xs = minimizer->X();
 
   std::cout << "Minimization: chi=" << minimizer->MinValue() << std::endl;
+  mChi2 = minimizer->MinValue();
   for (int i=0; i<3; ++i) {
     std::cout << "  p[" << i << "] = " << xs[i] << std::endl;
+    mParameters[i] = xs[i];
   }
 
   minimizer->PrintResults();
