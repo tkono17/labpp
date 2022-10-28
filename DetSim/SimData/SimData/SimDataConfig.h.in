@@ -1,0 +1,2 @@
+#define SimData_VERSION_MAJOR @SimData_VERSION_MAJOR@
+#define SimData_VERSION_MINOR @SimData_VERSION_MINOR@
