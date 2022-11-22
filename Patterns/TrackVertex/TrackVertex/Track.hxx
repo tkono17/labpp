@@ -8,6 +8,7 @@
 #include "TPad.h"
 
 #include "TrackVertex/Point.hxx"
+#include "TrackVertex/Vertex.hxx"
 #include "TrackVertex/Hit.hxx"
 
 class Track : public TObject {
@@ -16,7 +17,9 @@ public:
   ~Track();
 
   float parameter(int i) const { return mParameters[i]; }
-
+  void setParameter(int i, double p) { mParameters[i] = p; }
+  const double* covarianceMatrix() const { return mCovarianceMatrix; }
+  
   void updateData(float rho, float d0, float phi0);
 
   void setData(float rho, float d0, float phi0);
@@ -33,12 +36,17 @@ public:
   float angleAtPerigee() const;
 
   double distance(const Hit& hit) const;
+
+  double distance(const Vertex& v) const;
+  
+  //  double distance(const Point& point) const;
   
   ClassDef(Track, 1)
   
 protected:
   std::uint32_t mNParameters;
   float mParameters[3]; // q/R, d0, phi0
+  double mCovarianceMatrix[9];
   //
   float mCharge;
   float mPtAtDCA; // Pt at distance of closest appoach

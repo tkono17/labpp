@@ -7,6 +7,7 @@
 #include "TArc.h"
 
 #include "TrackVertex/Track.hxx"
+#include "TrackVertex/Vertex.hxx"
 
 ClassImp(Track)
 
@@ -138,3 +139,13 @@ double Track::distance(const Hit& hit) const {
   double d = p.distance(mCircleCenter) - mCircleR;
   return d;
 }
+
+double Track::distance(const Vertex& v) const {
+  double d = std::fabs(v.position().distance(mCircleCenter) - mCircleR);
+  return d;
+}
+
+// double Track::distance(const Point& point) const {
+//   double d = std::fabs(point.distance(mCircleCenter) - mCircleR);
+//   return d;
+// }
