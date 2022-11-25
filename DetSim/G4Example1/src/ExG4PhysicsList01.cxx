@@ -28,7 +28,8 @@
 #include "G4MuonDecayChannelWithSpin.hh"
 #include "G4MuonRadiativeDecayChannelWithSpin.hh"
 //#include "G4MuonMinusCaptureAtRest.hh"
-#include "G4MuonMinusCapture.hh"
+#include "G4MuonMinusAtomicCapture.hh"
+#include "G4MuonicAtomDecay.hh"
 #include "G4DecayTable.hh"
 #include "G4DecayWithSpin.hh"
 #include "G4ProcessTable.hh"
@@ -123,7 +124,7 @@ namespace ds {
     
     decay = processTable->FindProcess("Decay", G4MuonMinus::MuonMinus());
     pManager = G4MuonMinus::MuonMinus()->GetProcessManager();
-    G4VProcess* capture_process = new G4MuonMinusCapture();
+    G4VProcess* capture_process = new G4MuonMinusAtomicCapture();
     if (pManager) {
       if (decay) pManager->RemoveProcess(decay);
       pManager->AddProcess(decayWithSpin);
@@ -131,6 +132,12 @@ namespace ds {
       pManager->SetProcessOrdering(decayWithSpin, idxAtRest);
       pManager->AddProcess(capture_process);
     }
+
+    // pManager = G4MuonicAtom::MuonicAtom()->GetProcessManager();
+    // decay = new G4MuonicAtomDecay();
+    // if (pManager) {
+    //   pManager->AddProcess(decay);
+    // }
     
   }
 

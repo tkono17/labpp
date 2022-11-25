@@ -57,8 +57,7 @@ namespace ds {
 	    mEvent.addHit(idet, hit->hitData());
 	  }
 	}
-	// std::cout << "Nhits=" << hc->GetSize() << std::endl;
-	// mHist_nhits->Fill(hc->GetSize());
+
       } else {
 	std::cout << "Cannot find HitsCollection" << std::endl;
       }
