@@ -7,17 +7,20 @@
 #include <list>
 #include "TObject.h"
 #include "TrackVertex/Point.hxx"
-#include "TrackVertex/Track.hxx"
 
-class Vertex {
+class Vertex : public TObject {
 public:
   Vertex();
+  Vertex(double vx, double vy);
   ~Vertex();
 
+  const Point& position() const { return mPosition; }
+  
+  ClassDef(Vertex, 1)
   
 protected:
   Point mPosition;
-  std::list<Track*> mTracks;
+  //  std::list<Track*> mTracks;
 };
 
 #endif  // __TrackVertex_Vertex_hxx__
