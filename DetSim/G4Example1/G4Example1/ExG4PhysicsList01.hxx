@@ -16,7 +16,9 @@ namespace ds {
 
     void ConstructProcess();
 
+    void AddMuonicAtom();
     void ModifyMuonDecay();
+    void Check();
   };
 
 }

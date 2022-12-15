@@ -43,8 +43,10 @@ namespace ds {
   void ExG4DetectorConstruction01::constructVolumes() {
     // Materials
     G4NistManager* man = G4NistManager::Instance();
-    G4Material* Air = man->FindOrBuildMaterial("G4_AIR");
-    G4Material* plastic = man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
+    // G4Material* Air = man->FindOrBuildMaterial("G4_AIR");
+    // G4Material* plastic = man->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
+    G4Material* Air = man->FindOrBuildMaterial("G4_Cu");
+    G4Material* plastic = man->FindOrBuildMaterial("G4_Cu");
 
     G4Box* s_world = new G4Box("World", 500.0*mm, 500.0*mm, 500.0*mm);
     G4LogicalVolume* lv_world = new G4LogicalVolume(s_world, Air, "World");

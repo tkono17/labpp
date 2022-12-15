@@ -13,6 +13,8 @@ namespace ds {
       mPosition[i] = 0.0;
     }
     mEnergyDeposit = 0.0;
+    mParticleId = 0;
+    mParticleName = "";
   }
 
   SCHitData::~SCHitData() {

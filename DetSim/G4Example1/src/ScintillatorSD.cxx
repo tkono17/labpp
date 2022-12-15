@@ -39,6 +39,16 @@ namespace ds {
     hitdata.setPosition(v3.x(), v3.y(), v3.z());
     hitdata.setEnergyDeposit(edep);
 
+    const G4Track* track = step->GetTrack();
+    if (track) {
+      auto pdef = track->GetParticleDefinition();
+      if (pdef) {
+	auto pname = pdef->GetParticleName();
+	hitdata.setParticleName(pname);
+      }
+    }
+    //    auto secTracks = step->GetSecondaries();
+    
     mHitsCollection->insert(hit);
 
     return true;
