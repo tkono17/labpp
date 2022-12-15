@@ -62,15 +62,18 @@ namespace ds {
       track_charge = 1;
     }
 
-    Double_t a = mRandom.Uniform(0.01, 10.0);
+    Double_t a = mRandom.Uniform(0.001, 1.0);
     Double_t b = log10(a);
     G4double energy = std::pow(10.0, b)*GeV;
-    Double_t x = mRandom.Uniform(-40.0, 40.0);
-    float y = mRandom.Uniform(-50.0, 50.0);
-    float z = 50*cm;
+    // Double_t x = mRandom.Uniform(-40.0, 40.0);
+    // Double_t y = mRandom.Uniform(-50.0, 50.0);
+    Double_t x = mRandom.Uniform(-1.0, 1.0);
+    Double_t y = mRandom.Uniform(-1.0, 1.0);
+    Double_t z = 50*cm;
 
     Double_t pi = TMath::Pi();
-    Double_t c =  mRandom.Uniform(0.0, pi/6.);
+    //    Double_t c =  mRandom.Uniform(0.0, pi/6.);
+    Double_t c =  mRandom.Uniform(0.0, 0.2);
     Double_t d = mRandom.Uniform(0.0, 1.);
     Double_t theta = 0.0;
     if (d<cos(c)*cos(c)) theta = c;

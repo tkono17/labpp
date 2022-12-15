@@ -35,6 +35,7 @@ namespace ds {
     const TLorentzVector& trackMomentum() const { return *mTrackMomentum; }
     int Nhits(int idet) const;
     ds::SCHitData getHit(int idet, int ihit) const;
+    std::vector<ds::SCHitData>& hits(int idet) const { return *(mSCHits[idet]); }
 
     void initialize();
 
@@ -51,7 +52,7 @@ namespace ds {
     TLorentzVector* mTrackPosition;
     TLorentzVector* mTrackMomentum;
     //    TClonesArray* mSCHits[4];
-    std::vector<SCHitData> mSCHits[4];
+    std::vector<SCHitData>* mSCHits[4];
   };
 
 }

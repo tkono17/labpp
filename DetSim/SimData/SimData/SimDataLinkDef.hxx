@@ -11,10 +11,6 @@
 
 #ifdef __CINT__
 
-#pragma link off all C++ globals;
-#pragma link off all C++ classes;
-#pragma link off all C++ functions;
-
 #pragma link C++ namespace ds;
 //#pragma link C++ nestedclass;
 //#pragma link C++ nestedtypedef;

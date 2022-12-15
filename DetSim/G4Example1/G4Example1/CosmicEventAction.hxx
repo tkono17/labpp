@@ -8,6 +8,8 @@
 #include "TTree.h"
 
 #include "G4UserEventAction.hh"
+#include "G4TrajectoryContainer.hh"
+#include "G4VTrajectory.hh"
 
 #include "SimData/SimEvent.hxx"
 
@@ -25,6 +27,8 @@ namespace ds {
 
     void setOutFileName(const std::string& s) { mOutFileName = s; }
 
+    void checkParticles(G4TrajectoryContainer& tc);
+    
   protected:
     G4EventManager* mEventManager;
 

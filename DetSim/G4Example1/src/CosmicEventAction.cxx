@@ -7,6 +7,8 @@
 #include "G4SDManager.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4Event.hh"
+#include "G4TrajectoryContainer.hh"
+#include "G4VTrajectory.hh"
 
 namespace ds {
 
@@ -57,14 +59,34 @@ namespace ds {
 	    mEvent.addHit(idet, hit->hitData());
 	  }
 	}
-	// std::cout << "Nhits=" << hc->GetSize() << std::endl;
-	// mHist_nhits->Fill(hc->GetSize());
+
       } else {
 	std::cout << "Cannot find HitsCollection" << std::endl;
       }
     }
+
+    auto trajectories = event->GetTrajectoryContainer();
+    //    std::cout << "Trajectories: " << trajectories << std::endl;
+    if (trajectories) {
+      checkParticles(*trajectories);
+    }
+    
     mTree->Fill();
     mEvent.clear();
+  }
+
+  void CosmicEventAction::checkParticles(G4TrajectoryContainer& tc) {
+    int nparticles = tc.entries();
+    std::cout << "N trajectories: " << nparticles << std::endl;
+
+    for (int i=0; i<nparticles; ++i) {
+      auto trajectory = tc[i];
+      if (trajectory) {
+	//	auto point = trajectory->GetPoint();
+	std::cout << "  particle=" << trajectory->GetParticleName()
+		  << std::endl;
+      }
+    }
   }
 
 }

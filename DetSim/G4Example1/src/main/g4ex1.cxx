@@ -61,14 +61,17 @@ int main(int argc, char* argv[]) {
     detector_setup->setUseAbsorber(false);
   }
 
+  std::cout << "Set user initializations" << std::endl;
   G4RunManager* runMgr = new G4RunManager();
   runMgr->SetUserInitialization(detector_setup);
   runMgr->SetUserInitialization(physics_list);
 
+  std::cout << "Set PrimaryGenratorAction" << std::endl;
   ds::ExG4PrimaryGeneratorAction01* action = 
     new ds::ExG4PrimaryGeneratorAction01();
   runMgr->SetUserAction(action);
 
+  std::cout << "Set CosmicEventAction" << std::endl;
   ds::CosmicEventAction* event_action = new ds::CosmicEventAction();
   if (mOutFileName != "") {
     event_action->setOutFileName(mOutFileName);
@@ -76,13 +79,16 @@ int main(int argc, char* argv[]) {
   event_action->setupTree();
   runMgr->SetUserAction(event_action);
 
+  std::cout << "Initialize RunManager" << std::endl;
   runMgr->Initialize();
 
+  std::cout << "UI manager" << std::endl;
   G4UImanager* ui = G4UImanager::GetUIpointer();
   ui->ApplyCommand("/run/verbose 1");
   //  ui->ApplyCommand("/event/verbose 1");
   //  ui->ApplyCommand("/tracking/verbose 1");
 
+  std::cout << "BeamOn" << std::endl;
   int nevents=n;
   runMgr->BeamOn(nevents);
 
