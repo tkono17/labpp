@@ -123,7 +123,7 @@ namespace ds {
     
     decay = processTable->FindProcess("Decay", G4MuonMinus::MuonMinus());
     pManager = G4MuonMinus::MuonMinus()->GetProcessManager();
-    G4VProcess* capture_process = new G4MuonMinusCapture();
+    G4VProcess* capture_process = new G4MuonMinusAtomicCapture();
     if (pManager) {
       if (decay) pManager->RemoveProcess(decay);
       pManager->AddProcess(decayWithSpin);
