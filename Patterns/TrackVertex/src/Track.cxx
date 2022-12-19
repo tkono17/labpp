@@ -26,6 +26,10 @@ void Track::setData(float rho, float d0, float phi0) {
   updateData(rho, d0, phi0);
 }
 
+void Track::setParameters(double p[3]) {
+  setData(p[0], p[1], p[2]);
+}
+
 void Track::setDataPPhiXY(float p, float phi, const Point& xy,
 			  float charge, float B) {
   float r = p/(0.3*B) * 1.0E+3; // [mm]
@@ -166,6 +170,11 @@ Point Track::pointAt(double s) const {
   return x0() + Point(x, y);
 }
 
+Vector Track::directionAt(double s) const {
+  double phi0 = mParameters[2];
+  Vector v(std::cos(phi0), std::sin(phi0));
+  return v;
+}
 double Track::angleX0() const {
   double pi = TMath::Pi();
   double alpha = mParameters[2] + pi/2.0;

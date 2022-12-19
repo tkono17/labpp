@@ -26,9 +26,21 @@ float Point::abs2() const {
   return (mX[0]*mX[0] + mX[1]*mX[1]);
 }
 
+Point Point::operator+(const Vector& v) const {
+  float x1 = x() + v.x();
+  float y1 = y() + v.y();
+  return Point(x1, y1);
+}
+
 Point Point::operator+(const Point& p) const {
   float x1 = x() + p.x();
   float y1 = y() + p.y();
+  return Point(x1, y1);
+}
+
+Point Point::operator-(const Vector& v) const {
+  float x1 = x() - v.x();
+  float y1 = y() - v.y();
   return Point(x1, y1);
 }
 

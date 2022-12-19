@@ -4,6 +4,8 @@
   SvgIO.hxx
 */
 #include <fstream>
+#include <vector>
+#include <map>
 #include "TrackVertex/Event.hxx"
 #include "TrackVertex/Track.hxx"
 #include "TrackVertex/Hit.hxx"
@@ -18,6 +20,8 @@ public:
   int outputTrack(const Track& track, const std::string& prefix="");
   int outputHit(const Hit& hit, const std::string& prefix="");
   int closeOutput();
+
+  std::vector<std::pair<double, double> > trackUncertainties(const Track& track);
   
 protected:
   std::ofstream mOutputFile;

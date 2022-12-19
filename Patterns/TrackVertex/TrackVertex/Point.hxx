@@ -7,6 +7,8 @@
 #include <cmath>
 #include "TObject.h"
 
+#include "TrackVertex/Vector.hxx"
+
 class Point : public TObject {
 public:
   Point(float x=0.0, float y=0.0);
@@ -17,7 +19,10 @@ public:
   float x() const { return mX[0]; }
   float y() const { return mX[1]; }
 
+  Point operator+(const Vector& v) const;
   Point operator+(const Point& p) const;
+
+  Point operator-(const Vector& v) const;
   Point operator-(const Point& p) const;
 
   float abs() const;

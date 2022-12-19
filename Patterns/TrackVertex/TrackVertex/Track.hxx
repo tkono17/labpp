@@ -8,6 +8,7 @@
 #include "TPad.h"
 
 #include "TrackVertex/Point.hxx"
+#include "TrackVertex/Vector.hxx"
 #include "TrackVertex/Vertex.hxx"
 #include "TrackVertex/Hit.hxx"
 
@@ -16,8 +17,10 @@ public:
   Track(float rho=0.0, float d0=0.0, float phi0=0.0);
   ~Track();
 
-  float parameter(int i) const { return mParameters[i]; }
+  double parameter(int i) const { return mParameters[i]; }
   void setParameter(int i, double p) { mParameters[i] = p; }
+  void setParameters(double p[3]);
+
   const double* covarianceMatrix() const { return mCovarianceMatrix; }
   
   void updateData(float rho, float d0, float phi0);
@@ -37,6 +40,7 @@ public:
   
   Point x0() const;
 
+  Vector directionAt(double s) const;
   Point pointAt(double s) const;
 
   bool clockwize() const { return mParameters[0]>0; }
