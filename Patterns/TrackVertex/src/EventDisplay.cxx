@@ -100,10 +100,14 @@ void EventDisplay::drawTrack(const Track& track, int color) {
     float cx = c.x();
     float cy = c.y();
 
+    const float deg = 180.0/TMath::Pi();
+
+    // std::cout << "Track rho: " << track.parameter(0) << std::endl;
+    // std::cout << "Track d0: " << track.parameter(1) << std::endl;
+    // std::cout << "Track phi0: " << track.parameter(2)*deg << std::endl;
     // std::cout << "Eventdisplay draw track" << std::endl;
     // std::cout << "  r = " << r << ", startPhi: " << phi1 << " - " << phi2 
-    // 	      << ", cx=" << cx << ", cy=" << cy << std::endl;
-    const float deg = 180.0/TMath::Pi();
+    //  	      << ", cx=" << cx << ", cy=" << cy << std::endl;
     
     TArc* arc = new TArc(c.x(), c.y(), r, phi1*deg, phi2*deg);
     arc->SetLineColor(color);

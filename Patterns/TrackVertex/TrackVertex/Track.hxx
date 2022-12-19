@@ -26,9 +26,26 @@ public:
   
   void setDataPPhiXY(float p, float phi, const Point& xy,
 		     float charge=1.0, float B=1.0);
+
+  double rho() const { return mParameters[0]; }
+  double d0() const { return mParameters[1]; }
+  double phi0() const { return mParameters[2]; }
+  
+  double angleX0() const; // Angle to the point of closest approach
+
+  double angleC() const; // Angle to the circle center
+  
+  Point x0() const;
+
+  Point pointAt(double s) const;
+
+  bool clockwize() const { return mParameters[0]>0; }
+  bool turningLeftAtX0() const { return mParameters[1]>0; }
   
   float charge() const { return mCharge; }
 
+  float radius() const { return mCircleR; }
+  
   const Point& circleCenter() const { return mCircleCenter; }
   float circleR() const { return mCircleR; }
   float circleStartPhi() const { return mCircleStartPhi; }

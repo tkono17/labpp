@@ -134,6 +134,58 @@ void drawTrack(TPad* pad, const Track& track) {
   //  arc->Draw("only");
 }
 
+Point Track::x0() const {
+  double pi = TMath::Pi();
+  double d = std::fabs(mParameters[1]);
+  double alpha = angleX0();
+  return Point(d*std::cos(alpha), d*std::sin(alpha));
+}
+
+Point Track::pointAt(double s) const {
+  double pi = TMath::Pi();
+  
+  s = std::fabs(s);
+  if (clockwize()) s *= -1.0;
+  double r = radius();
+  double theta = s/r;
+  double u = r*std::sin(theta);
+  double v = r*(1.0 - std::cos(theta));
+  double uangle = phi0();
+  if (clockwize()) {
+    uangle += pi;
+  }
+  double ca = std::cos(uangle);
+  double sa = std::sin(uangle);
+  double x = ca*u + -sa*v;
+  double y = sa*u + ca*v;
+
+  std::cout << "r=" << r << ", theta=" << theta*180.0/pi << std::endl;
+  std::cout << "u=" << u << ", v=" << v << std::endl;
+  std::cout << "uangle=" << uangle << ", x=" << x << ", y=" << y << std::endl;
+  
+  return x0() + Point(x, y);
+}
+
+double Track::angleX0() const {
+  double pi = TMath::Pi();
+  double alpha = mParameters[2] + pi/2.0;
+  if (turningLeftAtX0()) {
+    alpha = mParameters[2] - pi/2.0;
+  }
+  //  std::cout << "  alpha: " << alpha*180.0/pi << std::endl;
+  return alpha;
+}
+
+double Track::angleC() const {
+  double pi = TMath::Pi();
+  double beta = mParameters[2] + pi/2.0;
+  if (turningLeftAtX0() && clockwize() || !turningLeftAtX0() && !clockwize()) {
+    beta = mParameters[2] - pi/2.0;
+  }
+  //  std::cout << "  beta: " << beta*180.0/pi << std::endl;
+  return beta;
+}
+
 double Track::distance(const Hit& hit) const {
   auto p = hit.position();
   double d = p.distance(mCircleCenter) - mCircleR;
