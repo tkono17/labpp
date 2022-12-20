@@ -61,11 +61,16 @@ int SvgIO::outputTrack(const Track& track, const std::string& prefix) {
 
   double ds = 100.0;
   double s = 0.0;
-  std::vector<std::pair<double, double> > vout = trackUncertainties(track);
-  for (unsigned int i=0; i<vout.size(); ++i) {
-    auto d1 = vout[i].first;
-    auto d2 = vout[i].second;
-    s = ds*i;
+  int i_s = 0;
+  std::vector<Spread_t> vout = trackUncertainties(track);
+  for (auto& spread: vout) {
+    i_s = std::get<0>(spread);
+    s = std::get<1>(spread);
+    auto d1 = std::get<2>(spread);
+    auto d2 = std::get<3>(spread);
+    
+    std::cout << "Track uncertainty: s=" << s << ", d1=" << d1
+	      << ", d2=" << d2 << std::endl;
     auto p0 = track.pointAt(s);
     auto dir0 = track.directionAt(s);
     auto dp1 = p0 - d1*dir0;
@@ -104,9 +109,9 @@ int SvgIO::closeOutput() {
   return 0;
 }
 
-std::vector<std::pair<double, double> >
+std::vector<SvgIO::Spread_t>
 SvgIO::trackUncertainties(const Track& track) {
-  std::vector<std::pair<double, double> > vout;
+  std::vector<Spread_t> vout;
   
   const double* covArray = track.covarianceMatrix();
   double cov[3][3];
@@ -140,12 +145,15 @@ SvgIO::trackUncertainties(const Track& track) {
   };
 			
   
+  Spread_t spread;
   for (i=0; i<n; ++i) {
     s = ds*i;
     auto p0 = track.pointAt(s);
 
     d1 = 0.0;
     d2 = 0.0;
+    spread = { i, s, d1, d2 };
+    
     for (k=0; k<3; ++k) {
       for (j=0; j<3; ++j) {
 	pars0[j] = track.parameter(j);
@@ -156,16 +164,13 @@ SvgIO::trackUncertainties(const Track& track) {
       double sigma1 = std::sqrt(cov[i1][i1]);
       double sigma2 = std::sqrt(cov[i2][i2]);
       double r = cov[i1][i2]/(sigma1*sigma2);
+      std::cout << "   *** sigma1=" << sigma1
+		<< " sigma2=" << sigma2
+		<< " r=" << r << std::endl;
       // Variation 1a
       pars[i1] = pars0[i1] + sigma1;
       pars[i2] = pars0[i2] + sigma2*r;
-      track1.setParameters(pars);
-      auto p = track1.pointAt(s);
-      d = track.distance(Vertex(p.x(), p.y()));
-      if (d > d1) {
-	d1 = d;
-	d2 = d;
-      }
+      spread = updateSpread(pars, spread);
       // Variation 1b
       pars[i1] = pars0[i1] - sigma1;
       pars[i2] = pars0[i2] - sigma2*r;
@@ -182,7 +187,41 @@ SvgIO::trackUncertainties(const Track& track) {
       pars[i1] = pars0[i1] - sigma1*std::sqrt(1.0-r);
       pars[i2] = pars0[i2] - sigma2*std::sqrt(1.0-r);
     }
-    vout.push_back(std::make_pair(d1, d2));
+    vout.push_back(std::make_tuple(i, s, d1, d2));
   }
   return vout;
 }
+
+SvgIO::Spread_t
+SvgIO::updateSpread(const double* pars, const SvgIO::Spread_t& spread0) {
+  auto i_s = std::get<0>(spread0);
+  auto s = std::get<1>(spread0);
+  auto d1 = std::get<2>(spread0);
+  auto d2 = std::get<3>(spread0);
+
+  Track track1(pars[0], pars[1], pars[2]);
+  auto p = track1.pointAt(s);
+  auto d = track1.distance(Vertex(p.x(), p.y()));
+  Spread_t spread1 = { i_s, s, d, d };
+  std::cout << " ---> point=" << p.x() << ", " << p.y() << " d=" <<  d << std::endl;
+  
+  return updateSpread1(spread1, spread0);
+}
+
+SvgIO::Spread_t updateSpread1(const SvgIO::Spread_t& spread,
+			      const SvgIO::Spread_t& spread_current) {
+  auto i_s = std::get<0>(spread_current);
+  auto s = std::get<1>(spread_current);
+  auto d1 = std::get<2>(spread_current);
+  auto d2 = std::get<3>(spread_current);
+
+  if (std::get<2>(spread) > d1) {
+    d1 = std::get<2>(spread);
+  }
+  if (std::get<3>(spread) > d2) {
+    d2 = std::get<2>(spread);
+  }
+  return { i_s, s, d1, d2 };
+}
+
+

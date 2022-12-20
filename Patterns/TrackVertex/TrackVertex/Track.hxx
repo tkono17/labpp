@@ -14,21 +14,26 @@
 
 class Track : public TObject {
 public:
-  Track(float rho=0.0, float d0=0.0, float phi0=0.0);
+  Track(double rho=0.0, double d0=0.0, double phi0=0.0);
   ~Track();
 
+  const double* parameters() const { return mParameters; }
   double parameter(int i) const { return mParameters[i]; }
   void setParameter(int i, double p) { mParameters[i] = p; }
-  void setParameters(double p[3]);
+  void setParameters(const double* p);
 
+  void setCovMatrix(const double* cov);
   const double* covarianceMatrix() const { return mCovarianceMatrix; }
-  
-  void updateData(float rho, float d0, float phi0);
 
-  void setData(float rho, float d0, float phi0);
+  void setChi2(double x) { mChi2 = x; }
+  double chi2() const { return mChi2; }
   
-  void setDataPPhiXY(float p, float phi, const Point& xy,
-		     float charge=1.0, float B=1.0);
+  void updateData(double rho, double d0, double phi0);
+
+  void setData(double rho, double d0, double phi0);
+  
+  void setDataPPhiXY(double p, double phi, const Point& xy,
+		     double charge=1.0, double B=1.0);
 
   double rho() const { return mParameters[0]; }
   double d0() const { return mParameters[1]; }
@@ -46,15 +51,15 @@ public:
   bool clockwize() const { return mParameters[0]>0; }
   bool turningLeftAtX0() const { return mParameters[1]>0; }
   
-  float charge() const { return mCharge; }
+  double charge() const { return mCharge; }
 
-  float radius() const { return mCircleR; }
+  double radius() const { return mCircleR; }
   
   const Point& circleCenter() const { return mCircleCenter; }
-  float circleR() const { return mCircleR; }
-  float circleStartPhi() const { return mCircleStartPhi; }
+  double circleR() const { return mCircleR; }
+  double circleStartPhi() const { return mCircleStartPhi; }
 
-  float angleAtPerigee() const;
+  double angleAtPerigee() const;
 
   double distance(const Hit& hit) const;
 
@@ -66,15 +71,16 @@ public:
   
 protected:
   std::uint32_t mNParameters;
-  float mParameters[3]; // q/R, d0, phi0
+  double mParameters[3]; // q/R, d0, phi0
   double mCovarianceMatrix[9];
+  double mChi2;
   //
-  float mCharge;
-  float mPtAtDCA; // Pt at distance of closest appoach
-  float mPhiAtDCA; // phi at distance of closest appoach
+  double mCharge;
+  double mPtAtDCA; // Pt at distance of closest appoach
+  double mPhiAtDCA; // phi at distance of closest appoach
   Point mCircleCenter;
-  float mCircleR;
-  float mCircleStartPhi;
+  double mCircleR;
+  double mCircleStartPhi;
   bool mCircleClockwize;
 };
 

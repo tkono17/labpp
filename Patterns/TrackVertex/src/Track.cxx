@@ -11,35 +11,49 @@
 
 ClassImp(Track)
 
-Track::Track(float rho, float d0, float phi0) {
+Track::Track(double rho, double d0, double phi0) {
+  int i;
+
   mNParameters = 3;
   setData(rho, d0, phi0);
+  
+  mChi2 = 0.0;
+  for (i=0; i<9; ++i) {
+    mCovarianceMatrix[i] = 0.0;
+  }
 }
 
 Track::~Track() {
 }
 
-void Track::setData(float rho, float d0, float phi0) {
+void Track::setData(double rho, double d0, double phi0) {
   mParameters[0] = rho;
   mParameters[1] = d0;
   mParameters[2] = phi0;
   updateData(rho, d0, phi0);
 }
 
-void Track::setParameters(double p[3]) {
+void Track::setParameters(const double* p) {
   setData(p[0], p[1], p[2]);
 }
 
-void Track::setDataPPhiXY(float p, float phi, const Point& xy,
-			  float charge, float B) {
-  float r = p/(0.3*B) * 1.0E+3; // [mm]
-  float rho = charge/r;
+void Track::setCovMatrix(const double* cov) {
+  int i;
+  for (i=0; i<9; ++i) {
+    mCovarianceMatrix[i] = cov[i];
+  }
+}
+
+void Track::setDataPPhiXY(double p, double phi, const Point& xy,
+			  double charge, double B) {
+  double r = p/(0.3*B) * 1.0E+3; // [mm]
+  double rho = charge/r;
   mCharge = charge;
 
-  float px = std::cos(phi);
-  float py = std::sin(phi);
-  float qx = py;
-  float qy = -px;
+  double px = std::cos(phi);
+  double py = std::sin(phi);
+  double qx = py;
+  double qy = -px;
   if (charge > 0.0) {
     qx = py;
     qy = -px;
@@ -47,26 +61,26 @@ void Track::setDataPPhiXY(float p, float phi, const Point& xy,
     qx = -py;
     qy = px;
   }
-  float cx = xy.x() + r*qx;
-  float cy = xy.y() + r*qy;
-  float c = std::sqrt(cx*cx + cy*cy);
-  float ucx = cx/c;
-  float ucy = cy/c;
-  float dx = (c - r)*ucx;
-  float dy = (c - r)*ucy;
-  float d0 = std::sqrt(dx*dx + dy*dy);
-  float phi0 = std::atan2(cy, cx);
+  double cx = xy.x() + r*qx;
+  double cy = xy.y() + r*qy;
+  double c = std::sqrt(cx*cx + cy*cy);
+  double ucx = cx/c;
+  double ucy = cy/c;
+  double dx = (c - r)*ucx;
+  double dy = (c - r)*ucy;
+  double d0 = std::sqrt(dx*dx + dy*dy);
+  double phi0 = std::atan2(cy, cx);
 
   if (charge > 0.0 && c >= r) {
     phi0 += TMath::Pi()/2.0;
   } else if (charge > 0.0 && c < r) {
-    d0 -= -1.0;
-    phi0 -= TMath::Pi()/2.0;
+    d0 *= -1.0;
+    phi0 += TMath::Pi()/2.0;
   } else if (charge < 0.0 && c >= r) {
+    d0 *= -1.0;
     phi0 -= TMath::Pi()/2.0;
   } else if (charge < 0.0 && c < r) {
-    d0 -= -1.0;
-    phi0 += TMath::Pi()/2.0;
+    phi0 -= TMath::Pi()/2.0;
   }
 
   // std::cout << "Track p=" << p << ", phi=" << phi << std::endl;
@@ -78,7 +92,7 @@ void Track::setDataPPhiXY(float p, float phi, const Point& xy,
   // std::cout << "Track cx,cy=(" << cx << ", " << cy << ")" << std::endl;
 }
 
-void Track::updateData(float rho, float d0, float phi0) {
+void Track::updateData(double rho, double d0, double phi0) {
   // Need to implement the calculation
   // mCharge = rho/std::fabs(rho);
   // mPtAtDCA = ....;
@@ -106,30 +120,30 @@ void Track::updateData(float rho, float d0, float phi0) {
   mCircleStartPhi = std::atan2(-cy, -cx);
 }
 
-float Track::angleAtPerigee() const {
-  // float qOverR = mParameters[0];
-  // float d0 = mParameters[1];
-  float phi0 = mParameters[2];
-  // float phi = 0.0;
+double Track::angleAtPerigee() const {
+  // double qOverR = mParameters[0];
+  // double d0 = mParameters[1];
+  double phi0 = mParameters[2];
+  // double phi = 0.0;
 
   return phi0;
 }
 
 void drawTrack(TPad* pad, const Track& track) {
-  float r = track.circleR();
+  double r = track.circleR();
   auto& c = track.circleCenter();
-  float phi1 = track.circleStartPhi();
-  float phi2 = track.circleStartPhi();
+  double phi1 = track.circleStartPhi();
+  double phi2 = track.circleStartPhi();
   auto charge = track.charge();
-  float l = 2000.0;
-  float dphi = l/r;
+  double l = 2000.0;
+  double dphi = l/r;
   if (charge > 0.0) {
     phi2 = phi1 - dphi;
   } else {
     phi2 = phi1 + dphi;
   }
 
-  const float deg = 180.0/TMath::Pi();
+  const double deg = 180.0/TMath::Pi();
   
   TArc* arc = new TArc(c.x(), c.y(), r, phi1*deg, phi2*deg);
   arc->SetLineColor(kBlue-2);
@@ -163,9 +177,11 @@ Point Track::pointAt(double s) const {
   double x = ca*u + -sa*v;
   double y = sa*u + ca*v;
 
-  std::cout << "r=" << r << ", theta=" << theta*180.0/pi << std::endl;
-  std::cout << "u=" << u << ", v=" << v << std::endl;
-  std::cout << "uangle=" << uangle << ", x=" << x << ", y=" << y << std::endl;
+  // std::cout << "pars=" << mParameters[0] << ", " << mParameters[1]
+  // 	    << ", " << mParameters[2] << std::endl;
+  // std::cout << "r=" << r << ", theta=" << theta*180.0/pi << std::endl;
+  // std::cout << "u=" << u << ", v=" << v << std::endl;
+  // std::cout << "uangle=" << uangle << ", x=" << x << ", y=" << y << std::endl;
   
   return x0() + Point(x, y);
 }
@@ -196,8 +212,10 @@ double Track::angleC() const {
 }
 
 double Track::distance(const Hit& hit) const {
-  auto p = hit.position();
-  double d = p.distance(mCircleCenter) - mCircleR;
+  auto p0 = hit.position();
+  double d = p0.distance(mCircleCenter) - mCircleR;
+  // std::cout << "   distance: p=(" << p0.x() << ", " << p0.y()
+  // 	    << ", R=" << mCircleR << ", d=" << d << std::endl;
   return d;
 }
 

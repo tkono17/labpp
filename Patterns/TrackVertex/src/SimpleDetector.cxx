@@ -63,7 +63,7 @@ bool SimpleDetector::intersectionAtLayer(const Track& track,
     // std::cout << "   r2=" << r2 <<
     //   ", (" << c2.x() << ", " << c2.y() << ")" << std::endl;
     
-    if ( (l < r1 && l > dr) || (l < (r1 + r2) ) ) {
+    if ( (l < (r1+r2)) && (r2> r1/2.0) ) {
       ok = true;
       float x = 0.0;
       float y = 0.0;
