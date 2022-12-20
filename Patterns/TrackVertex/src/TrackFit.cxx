@@ -41,6 +41,12 @@ double TrackFit::operator()(const std::vector<Double_t>& p) {
   return y;
 }
 
+void TrackFit::setParameters(const double* x) {
+  for (int i=0; i<3; ++i) {
+    mParameters[i] = x[i];
+  }
+}
+
 double TrackFit::operator()(const double* p) {
   double y = calculateChi2(p);
 
@@ -73,12 +79,16 @@ double TrackFit::calculateChi2(const double* p, bool debug) {
     d /= sigma;
     chi2 += d*d;
   }
+  if (debug) {
+    std::cout << "        chi2=" << chi2 << std::endl;
+  }
   
   return chi2;
 }
 
 int TrackFit::fitHits(const std::vector<Hit*>& hits, const Track& track) {
-  return fitHitsMinuit2(hits, track);
+  return fitHitsMinimizer(hits, track);
+  //  return fitHitsMinuit2(hits, track);
   //return fitHitsNum(hits, track);
 }
 
@@ -184,7 +194,7 @@ int TrackFit::fitHitsMinimizer(const std::vector<Hit*>& hits, const Track& track
   minimizer->SetPrintLevel(1);
 
   ROOT::Math::Functor f(*this, 3);
-  double steps[3] = { 1.0E-6, 1.0E-4, 1.0E-4};
+  double steps[3] = { 1.0E-3, 10.0, 1.0 };
   double variables[3];
   std::string varNames[3];
   varNames[0] = "q/R";

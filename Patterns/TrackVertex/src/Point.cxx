@@ -5,7 +5,7 @@
 
 ClassImp(Point)
 
-Point::Point(float x, float y) : mN(2) {
+Point::Point(float x, float y) : TObject(), mN(2) {
   mX[0] = x;
   mX[1] = y;
 }

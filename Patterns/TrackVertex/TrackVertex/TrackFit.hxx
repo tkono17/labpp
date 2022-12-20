@@ -18,6 +18,8 @@ public:
 
   void setResolution(double x) { mResolution = x; }
   double resolution() const { return mResolution; }
+
+  void setHits(const std::vector<Hit*>& hits) { mHits = hits; }
   
   double operator()(const std::vector<Double_t>& p);
   double operator()(const double* p);
@@ -31,7 +33,8 @@ public:
 
   double chi2() const { return mChi2; }
   int nDof() const { return mNDof; }
-  
+
+  void setParameters(const double* x);
   const double* parameters() const { return mParameters; }
   const double* covMatrix() const { return mCovMatrix; }
 
