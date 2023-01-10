@@ -41,7 +41,7 @@ public:
   int estimatePars(const std::vector<Hit*>& hits, double* pars);
   
   bool fitFailed() const { return mFitFailed; }
-  
+
 protected:
   double mResolution;
   std::vector<Hit*> mHits;

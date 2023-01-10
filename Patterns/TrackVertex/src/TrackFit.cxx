@@ -87,9 +87,9 @@ double TrackFit::calculateChi2(const double* p, bool debug) {
 }
 
 int TrackFit::fitHits(const std::vector<Hit*>& hits, const Track& track) {
-  return fitHitsMinimizer(hits, track);
+  //return fitHitsMinimizer(hits, track);
   //  return fitHitsMinuit2(hits, track);
-  //return fitHitsNum(hits, track);
+  return fitHitsNum(hits, track);
 }
 
 int TrackFit::fitHitsMinuit2(const std::vector<Hit*>& hits,
@@ -134,7 +134,7 @@ int TrackFit::fitHitsNum(const std::vector<Hit*>& hits, const Track& track) {
   int ncallsMax = 1000000;
   double parsInit[3];
   double pars[3];
-  double steps[3] = { 1.0E-6, 1.0E-4, 1.0E-4};
+  double steps[3] = { 1.0E-4, 0.1, 1.0E-4};
   double derivatives[3];
   
   for (i=0; i<3; ++i) {
@@ -164,8 +164,17 @@ int TrackFit::fitHitsNum(const std::vector<Hit*>& hits, const Track& track) {
   derivatives[1] = (y2 - y0)/steps[1];
   derivatives[2] = (y3 - y0)/steps[2];
 
+  double W = 1/(mResolution*mResolution);
+  double A2 = 0.0;
+  for (i=0; i<3; ++i) {
+    A2 += derivatives[i] * derivatives[i];
+  }
+  
   y0 = 0.0;
   std::cout << "dy = " << (y1-y0) << ", " << (y2-y0) << ", " << (y3-y0)
+	    << std::endl;
+  std::cout << "  derivatives: " << derivatives[0]
+	    << ", " << derivatives[1] << ", " << derivatives[2]
 	    << std::endl;
   // Find the minimum
   
@@ -224,14 +233,16 @@ int TrackFit::fitHitsMinimizer(const std::vector<Hit*>& hits, const Track& track
   mChi2 = minimizer->MinValue();
   mNDof = static_cast<int>(mHits.size()) - 3;
   for (i=0; i<3; ++i) {
-    std::cout << "  fit values: p[" << i << "] = " << xs[i] << std::endl;
-    mParameters[i] = xs[i];
-  }
-  for (i=0; i<3; ++i) {
     for (j=0; j<3; ++j) {
       k = 3*i + j;
       mCovMatrix[k] = minimizer->CovMatrix(i, j);
     }
+  }
+  for (i=0; i<3; ++i) {
+    std::cout << "  fit values: p[" << i << "] = " << xs[i]
+	      << " +- " << mCovMatrix[3*i+i]
+	      << std::endl;
+    mParameters[i] = xs[i];
   }
   if (minimizer->IsValidError()) {
     mFitFailed = false;
