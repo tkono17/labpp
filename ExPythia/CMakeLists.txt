@@ -36,13 +36,14 @@ list(APPEND LIBS ${ROOT_LIBRARIES})
 
 include_directories(${DESTINATION}/include 
   ${PROJECT_SOURCE_DIR}/McData
-  ${DESTINATION}/MG5_aMC_v2_8_0/ExRootAnalysis )
+  ${DESTINATION}/MG5_aMC_v3_5_1/ExRootAnalysis )
 link_directories($ENV{SWDIR}/lib)
-list(APPEND LIBS ${DESTINATION}/lib64/libHepMC3.so 
-	    ${DESTINATION}/lib/libfastjet.so
-	    ${DESTINATION}/lib/libpythia8.so
-	    ${DESTINATION}/MG5_aMC_v2_8_0/ExRootAnalysis/libExRootAnalysis.so
-	    ${PROJECT_BINARY_DIR}/../McData/libMcData.so
+list(APPEND LIBS 
+  ${DESTINATION}/lib/libfastjet.so
+  ${DESTINATION}/lib/libpythia8.so
+  ${DESTINATION}/MG5_aMC_v3_5_1/ExRootAnalysis/libExRootAnalysis.so
+  ${PROJECT_BINARY_DIR}/../McData/libMcData.so
+  libHepMC3.so
   )
 
 #####-------------------------------------------------------------

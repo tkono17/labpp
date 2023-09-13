@@ -5,6 +5,7 @@
 */
 #include <string>
 #include <vector>
+#include "TClonesArray.h"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/PseudoJet.hh"
@@ -23,6 +24,10 @@ void convertJetData(const std::vector<fastjet::PseudoJet>& jets,
 
 void convertJetData(const std::vector<fastjet::PseudoJet>& jets, 
 		    TClonesArray* ca_jets, 
-		    TClonesArray* ca_relations);
+		    TClonesArray* ca_relations=nullptr);
+
+void convertLargeRJetData(const std::vector<fastjet::PseudoJet>& jets, 
+			  TClonesArray* ca_jets, 
+			  TClonesArray* ca_relations=nullptr);
 
 #endif // __FastjetTools_hxx__

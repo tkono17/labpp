@@ -3,15 +3,24 @@
 */
 #include "McData/FastjetTools.hxx"
 #include "McData/Jet.hxx"
+#include "McData/LargeRJet.hxx"
 #include "McData/IndexPair.hxx"
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
 #include "TClonesArray.h"
+#include "fastjet/contrib/EnergyCorrelator.hh"
 
-const fastjet::JetDefinition& getJetDefinition(const std::string& /*algo_type*/) {
-  static fastjet::JetDefinition* jet_def(0);
-  if (jet_def == 0) {
-    // algo_type not used 
+const fastjet::JetDefinition& getJetDefinition(const std::string& algo_type) {
+  static fastjet::JetDefinition* jet_def=nullptr;
+  if (algo_type=="AntiKtR04") {
+    double R=0.4;
+    jet_def = new fastjet::JetDefinition(fastjet::antikt_algorithm, R);
+  } else if (algo_type=="AntiKtR10") {
+    double R=1.0;
+    jet_def = new fastjet::JetDefinition(fastjet::antikt_algorithm, R);
+  } else {
+    // algo_type not used
+    std::cout << "Configurig jet defintion with AntiKt R=0.4" << std::endl;
     double R=0.4;
     jet_def = new fastjet::JetDefinition(fastjet::antikt_algorithm, R);
   }
@@ -54,8 +63,8 @@ void convertJetData(const std::vector<fastjet::PseudoJet>& jets,
 }
 
 void convertJetData(const std::vector<fastjet::PseudoJet>& jets, 
-		    TClonesArray* ca_jets, 
-		    TClonesArray* ca_relations) {
+			  TClonesArray* ca_jets, 
+			  TClonesArray* ca_relations) {
   std::vector<fastjet::PseudoJet>::const_iterator pj, pj2;
   Jet* jet=0;
   int njets=0;
@@ -63,15 +72,54 @@ void convertJetData(const std::vector<fastjet::PseudoJet>& jets,
   IndexPair jp_match;
 
   ca_jets->Clear();
-  ca_relations->Clear();
+  if (ca_relations) {
+    ca_relations->Clear();
+  }
 
   for (pj=jets.begin(); pj!=jets.end(); ++pj, ++njets) {
     jet = new ( (*ca_jets)[njets]) Jet();
     jet->setMomentum(TLorentzVector(pj->px(), pj->py(), pj->pz(), pj->e()));
+
     std::vector<fastjet::PseudoJet> constituents = pj->constituents();
-    for (pj2=constituents.begin(); pj2!=constituents.end(); ++pj2) {
-      jp_match.set(njets, pj2->user_index());
-      new ( (*ca_relations)[nrel++]) IndexPair(jp_match);
+    jet->setNConstituents(constituents.size());
+    if (ca_relations) {
+      for (pj2=constituents.begin(); pj2!=constituents.end(); ++pj2) {
+	jp_match.set(njets, pj2->user_index());
+	new ( (*ca_relations)[nrel++]) IndexPair(jp_match);
+      }
+    }
+  }
+}
+
+void convertLargeRJetData(const std::vector<fastjet::PseudoJet>& jets, 
+			  TClonesArray* ca_jets, 
+			  TClonesArray* ca_relations) {
+  std::vector<fastjet::PseudoJet>::const_iterator pj, pj2;
+  LargeRJet* jet=0;
+  int njets=0;
+  int nrel=0;
+  IndexPair jp_match;
+
+  ca_jets->Clear();
+  if (ca_relations) {
+    ca_relations->Clear();
+  }
+
+  float beta = 2.0;
+  for (pj=jets.begin(); pj!=jets.end(); ++pj, ++njets) {
+    jet = new ( (*ca_jets)[njets]) LargeRJet();
+    jet->setMomentum(TLorentzVector(pj->px(), pj->py(), pj->pz(), pj->e()));
+
+    fastjet::contrib::EnergyCorrelatorD2 d2(beta);
+    jet->setD2(d2.result(*pj));
+    
+    std::vector<fastjet::PseudoJet> constituents = pj->constituents();
+    jet->setNConstituents(constituents.size());
+    if (ca_relations) {
+      for (pj2=constituents.begin(); pj2!=constituents.end(); ++pj2) {
+	jp_match.set(njets, pj2->user_index());
+	new ( (*ca_relations)[nrel++]) IndexPair(jp_match);
+      }
     }
   }
 }

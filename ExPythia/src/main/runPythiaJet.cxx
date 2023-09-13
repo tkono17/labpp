@@ -29,6 +29,7 @@
 #include "McData/McParticle.hxx"
 #include "McData/McVertex.hxx"
 #include "McData/Jet.hxx"
+#include "McData/LargeRJet.hxx"
 #include "McData/IndexPair.hxx"
 
 int main(int argc, char* argv[]) {
@@ -69,6 +70,7 @@ int main(int argc, char* argv[]) {
   TClonesArray* ca_particles = new TClonesArray("McParticle", 10000);
   TClonesArray* ca_vertices = new TClonesArray("McVertex", 10000);
   TClonesArray* ca_jets = new TClonesArray("Jet", 1000);
+  TClonesArray* ca_jetsR10 = new TClonesArray("LargeRJet", 1000);
   TClonesArray* ca_jet_matching = new TClonesArray("IndexPair", 10000);
   std::map<HepMC3::ConstGenVertexPtr, int> vtx_id_map;
 
@@ -76,11 +78,16 @@ int main(int argc, char* argv[]) {
   t->Branch("Particle", "TClonesArray", &ca_particles);
   t->Branch("Vertex", "TClonesArray", &ca_vertices);
   t->Branch("Jet", "TClonesArray", &ca_jets);
+  t->Branch("LargeRJet", "TClonesArray", &ca_jetsR10);
   t->Branch("Jet_match", "TClonesArray", &ca_jet_matching);
 
-  const fastjet::JetDefinition& jet_def = getJetDefinition("");
   std::vector<fastjet::PseudoJet>::const_iterator pj;
+
+  const fastjet::JetDefinition& jet_def = getJetDefinition("AntiKtR04");
   std::vector<fastjet::PseudoJet> jets;
+
+  const fastjet::JetDefinition& jet_def10 = getJetDefinition("AntiKtR10");
+  std::vector<fastjet::PseudoJet> jetsR10;
   //---------------------------------------------------------------
 
   int ievent=0;
@@ -107,13 +114,17 @@ int main(int argc, char* argv[]) {
     ca_vertices->Clear();
     ca_jets->Clear();
     ca_jet_matching->Clear();
+    ca_jetsR10->Clear();
     fastjet::ClusterSequence* cs = runJetAlgorithm(hepmcEvent, jet_def, jets);
+    fastjet::ClusterSequence* cs10 = runJetAlgorithm(hepmcEvent, jet_def10, jetsR10);
 
     convertVertexData(hepmcEvent, ca_vertices, vtx_id_map);
     convertParticleData(hepmcEvent, ca_particles, vtx_id_map);
-    convertJetData(jets, ca_jets, ca_jet_matching);
+    convertJetData(jets, ca_jets);
+    convertJetData(jetsR10, ca_jetsR10);
     
     delete cs;
+    delete cs10;
     t->Fill();
 
     if (ievent>0 && (ievent%1000)==0) {

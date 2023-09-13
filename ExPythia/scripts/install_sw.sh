@@ -1,156 +1,72 @@
-#!/usr/bin/env zsh
-#---------------------------------------------------------------------
-# Software install procedure for phenomenology study
-#---------------------------------------------------------------------
-#---------------------------------------------------------------------
-# o Specify the directories
-#   proj_dir: The project directory. All work is done under this directory
-#             Create two directories (src and sw) under this directory, e.g. 
-#             cd ${proj_dir}; mkdir src sw
-#---------------------------------------------------------------------
-proj_dir=/nfs/space3/tkohno/work/Phenomenology/mg2021
-#---------------------------------------------------------------------
-sw_dir=${proj_dir}/sw
-dev_dir=${proj_dir}/dev
-devsrc_dir=${dev_dir}/sources
-#---------------------------------------------------------------------
-# o Specify which software to install
-#   Set 'yes' to install, otherwise leave it empty or set string other 
-#   than 'yes'.
-#---------------------------------------------------------------------
-install_lhapdf=
-install_fastjet=
-install_hepmc=
-install_pythia8=yes
-install_madgraph=yes
-#---------------------------------------------------------------------
+#!/usr/bin/env bash
+devdir=/nfs/space3/tkohno/work/Vlq/dev
+srcdir=${devdir}/sources
 
-if [[ $ROOTSYS == "" ]]; then
-    echo "Make sure ROOT is not available to install event generator software."
-    exit 1
-fi
+cd ${devdir}/sources
 
-dir0=$(pwd)
-mkdir -p ${sw_dir}
-mkdir -p ${dev_dir}
-mkdir -p ${devsrc_dir}
-
-cd ${devsrc_dir}
-
-# LHAPDF
-#url=http://www.hepforge.org/archive/lhapdf/LHAPDF-6.2.1.tar.gz
-url=https://lhapdf.hepforge.org/downloads/?f=LHAPDF-6.3.0.tar.gz
-if [[ ${install_lhapdf} == "yes" ]]; then
-    fname=$(basename ${url})
-    fname=$fname[4,-1]
-    pname=$(echo ${fname} | sed "s/\.tar\.gz//g")
-    if [[ ! -e $fname ]]; then
-	curl -o ${fname} ${url}
+function download() {
+    fn=''
+    if [[ $# -eq 1 ]]; then
+	url=$1
+	fn=$(basename ${url})
+    elif [[ $# -eq 2 ]]; then
+	url=$1
+	fn=$2
+    else
+	echo "$0 <url> [<filename>]"
+	exit 1
     fi
-    tar xvfz ${fname}
-    cd ${pname}
-    ./configure --prefix=${sw_dir}
-    make
+    if [[ -e $fn ]]; then
+	echo "File $fn exists at ${PWD}"
+    else
+	curl -g ${url} -o ${fn}
+    fi
+    # Extract tar.gz
+    if [[ -e ${fn} ]]; then
+	tar xfz ${fn}
+    fi
+}
+
+function getSources() {
+    # lhapdf
+    download https://lhapdf.hepforge.org/downloads/?f=LHAPDF-6.5.4.tar.gz LHAPDF-6.5.4.tar.gz
+    
+    # HepMC3
+    # Installed by dnf
+    
+    # Pythia8
+    download https://pythia.org/download/pythia83/pythia8310.tgz
+    
+    # FastJet
+    download http://fastjet.fr/repo/fastjet-3.4.2.tar.gz
+    download http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.052.tar.gz fjcontrib-1.052
+
+    # labpp
+    cd ${devdir}
+    if [[ ! -e labpp ]]; then
+	git clone https://github.com/tkono17/labpp.git
+    fi
+}
+
+function compile() {
+    cd ${devdir}/sources/LHAPDF-6.5.4
+    ./configure --prefix=${SWDIR}
     make install
-    cd -
-fi
-
-cd ${devsrc_dir}
-# Fastjet
-#url=http://www.fastjet.fr/repo/fastjet-3.3.1.tar.gz
-url=http://fastjet.fr/repo/fastjet-3.3.4.tar.gz
-if [[ ${install_fastjet} == "yes" ]]; then
-    fname=$(basename ${url})
-    pname=$(echo ${fname} | sed "s/\.tar\.gz//g")
-    if [[ ! -e $fname ]]; then
-	wget ${url}
-    fi
-    tar xvfz ${fname}
-    cd ${pname}
-    ./configure --prefix=${sw_dir}
-    make
+    
+    cd ${devdir}/sources/pythia8310
+    ./configure --prefix=${SWDIR}
     make install
-    cd -
-fi
 
-cd ${devsrc_dir}
-# HepMC
-#url=http://lcgapp.cern.ch/project/simu/HepMC/download/HepMC-2.06.08.tar.gz
-#url=http://hepmc.web.cern.ch/hepmc/releases/hepmc3.0.0.tgz
-url=https://hepmc.web.cern.ch/hepmc/releases/HepMC3-3.2.2.tar.gz
-if [[ ${install_hepmc} == "yes" ]]; then
-    fname=$(basename ${url})
-    pname=$(echo ${fname} | sed "s/\.tar\.gz//g")
-    bname=hepmc_build
-    sname=${devsrc_dir}/${pname}
-    if [[ ! -e $fname ]]; then
-	wget ${url}
-    fi
-    tar xvfz ${fname}
-    mkdir -p ${bname}
-    cd ${bname}
-    cmake -DCMAKE_INSTALL_PREFIX=${sw_dir} ${sname} \
-	-D momentum:STRING=GEV -Dlength:STRING=MM \
-	-D HEPMC3_Python_SITEARCH27=${SWDIR}/share/python2.7/site-packages \
-	-D HEPMC3_Python_SITEARCH38=${SWDIR}/share/python3.8/site-packages
-    ./configure --prefix=${sw_dir}
-    make
+    cd ${devdir}/sources/fastjet-3.4.2
+   ./configure --prefix=${SWDIR}
     make install
-    cd -
-    unset bname
-    unset sname
-fi
 
-cd ${devsrc_dir}
-# MadGraph MC@NLO
-url=https://launchpad.net/mg5amcnlo/2.0/2.8.x/+download/MG5_aMC_v2.8.0.tar.gz
-if [[ ${install_madgraph} == "yes" ]]; then
-    fname=$(basename ${url})
-    pname=$(echo ${fname} | sed "s/\.tar\.gz//g" | sed "s/\./_/g")
-    if [[ ! -e $fname ]]; then
-	wget ${url}
-    fi
-    tar xvfz ${fname}
-    cd ${pname}
-    ./bin/mg5_aMC <<EOF
-install ExRootAnalysis
-quit
-EOF
-    cd -
-    mv ${pname} ${sw_dir}
-fi
-
-cd ${devsrc_dir}
-# Pythia8
-url=http://home.thep.lu.se/~torbjorn/pythia8/pythia8303.tgz
-if [[ ${install_pythia8} == "yes" ]]; then
-    fname=$(basename ${url})
-    pname=$(echo ${fname} | sed "s/\.tgz//g")
-    if [[ ! -e $fname ]]; then
-	wget ${url}
-    fi
-    tar xvfz ${fname}
-    cd ${pname}
-    ./configure --prefix=${sw_dir} \
-	--with-lhapdf6=${sw_dir} \
-	--with-fastjet3=${sw_dir} \
-	--with-hepmc3=${sw_dir} \
-	--with-root=${ROOTSYS} \
-	--with-gzip
-    make
-    make clean
+    cd ${devdir}/sources/fjcontrib-1.052
+   ./configure --prefix=${SWDIR}
     make install
-    cd -
-fi
+}
 
-cd ${dir0}
+#getSources
+compile
 
-unset dir0
-unset sw_dir
-unset dev_dir
-unset devsrc_dir
-unset fname
-unset pname
-
-echo "Installing SW done"
-date
+cd ${devdir}

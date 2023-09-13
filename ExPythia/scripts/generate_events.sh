@@ -33,7 +33,8 @@ lhe=${output_mg}/Events/run_01/unweighted_events.lhe
 gzip -d ${lhe_gz}
 
 # 3. Run pythia
-pythia_mod82b.exe ${pythia_cmnd} ${lhe} ${root_output}
+#pythia_mod82b.exe ${pythia_cmnd} ${lhe} ${root_output}
+runPythiaJet.exe ${pythia_cmnd} ${lhe} ${root_output}
 
 # 4. Print summary
 echo "MG5_aMC process          : ${mg_process}"

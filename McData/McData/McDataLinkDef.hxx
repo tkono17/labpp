@@ -11,6 +11,7 @@
 #pragma link C++ class McParticle+;
 #pragma link C++ class McVertex+;
 #pragma link C++ class Jet+;
+#pragma link C++ class LargeRJet+;
 #pragma link C++ class IndexPair+;
 #pragma link C++ class PJEvent+;
 

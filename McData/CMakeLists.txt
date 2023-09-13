@@ -26,6 +26,7 @@ set(DICT_HEADERS
   McData/McParticle.hxx
   McData/McVertex.hxx
   McData/Jet.hxx
+  McData/LargeRJet.hxx
   McData/IndexPair.hxx
   McData/PJEvent.hxx
   )
@@ -41,11 +42,12 @@ include(${ROOT_USE_FILE})
 list(APPEND LIBS ${ROOT_LIBRARIES})
 
 include_directories(${DESTINATION}/include 
-  ${DESTINATION}/MG5_aMC_v2_8_0/ExRootAnalysis )
-list(APPEND LIBS ${DESTINATION}/lib64/libHepMC3.so 
-	    ${DESTINATION}/lib/libfastjet.so
-	    ${DESTINATION}/lib/libpythia8.so
-	    ${DESTINATION}/MG5_aMC_v2_8_0/ExRootAnalysis/libExRootAnalysis.so
+  ${DESTINATION}/MG5_aMC_v3_5_1/ExRootAnalysis)
+list(APPEND LIBS 
+  ${DESTINATION}/lib/libfastjet.so
+  ${DESTINATION}/lib/libpythia8.so
+  ${DESTINATION}/MG5_aMC_v3_5_1/ExRootAnalysis/libExRootAnalysis.so
+  libHepMC3.so
   )
 
 #####-------------------------------------------------------------
@@ -65,10 +67,12 @@ endif()
 #####-------------------------------------------------------------
 ##### Shared library
 #####-------------------------------------------------------------
-add_library(${PROJECT_NAME} SHARED 
+add_library(${PROJECT_NAME} SHARED
   ${LIB_SRCS} ${root_dict_src}
   )
-target_link_libraries(${PROJECT_NAME} ${LIBS})
+target_link_libraries(${PROJECT_NAME} ${LIBS}
+    ${DESTINATION}/lib/libEnergyCorrelator.a
+)
 
 #####-------------------------------------------------------------
 ##### Executables
