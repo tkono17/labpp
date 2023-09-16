@@ -8,8 +8,6 @@ set(DESTINATION $ENV{SWDIR})
 
 set(CMAKE_INSTALL_PREFIX ${DESTINATION})
 
-# set(CMAKE_MODULE_PATH /nfs/space1/tkohno/sw/etc/cmake ${CMAKE_MODULE_PATH})
-
 configure_file(
   "${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/${PROJECT_NAME}Config.h.in"
   "${PROJECT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}Config.h"
@@ -45,6 +43,7 @@ include_directories(${DESTINATION}/include
   ${DESTINATION}/MG5_aMC_v3_5_1/ExRootAnalysis)
 list(APPEND LIBS 
   ${DESTINATION}/lib/libfastjet.so
+  ${DESTINATION}/lib/libfastjetcontribfragile.so
   ${DESTINATION}/lib/libpythia8.so
   ${DESTINATION}/MG5_aMC_v3_5_1/ExRootAnalysis/libExRootAnalysis.so
   libHepMC3.so

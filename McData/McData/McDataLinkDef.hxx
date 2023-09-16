@@ -4,9 +4,6 @@
   LinkDef.hxx
 */
 
-// #pragma link off all C++ globals;
-// #pragma link off all C++ classes;
-// #pragma link off all C++ functions;
 #pragma link C++ class McEvent+;
 #pragma link C++ class McParticle+;
 #pragma link C++ class McVertex+;

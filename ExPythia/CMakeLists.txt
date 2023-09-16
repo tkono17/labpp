@@ -40,6 +40,7 @@ include_directories(${DESTINATION}/include
 link_directories($ENV{SWDIR}/lib)
 list(APPEND LIBS 
   ${DESTINATION}/lib/libfastjet.so
+  ${DESTINATION}/lib/libfastjetcontribfragile.so
   ${DESTINATION}/lib/libpythia8.so
   ${DESTINATION}/MG5_aMC_v3_5_1/ExRootAnalysis/libExRootAnalysis.so
   ${PROJECT_BINARY_DIR}/../McData/libMcData.so

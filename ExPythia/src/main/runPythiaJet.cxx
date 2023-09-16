@@ -116,12 +116,13 @@ int main(int argc, char* argv[]) {
     ca_jet_matching->Clear();
     ca_jetsR10->Clear();
     fastjet::ClusterSequence* cs = runJetAlgorithm(hepmcEvent, jet_def, jets);
-    fastjet::ClusterSequence* cs10 = runJetAlgorithm(hepmcEvent, jet_def10, jetsR10);
 
     convertVertexData(hepmcEvent, ca_vertices, vtx_id_map);
     convertParticleData(hepmcEvent, ca_particles, vtx_id_map);
     convertJetData(jets, ca_jets);
-    convertJetData(jetsR10, ca_jetsR10);
+
+    fastjet::ClusterSequence* cs10 = runJetAlgorithm(hepmcEvent, jet_def10, jetsR10);
+    convertLargeRJetData(jetsR10, ca_jetsR10);
     
     delete cs;
     delete cs10;

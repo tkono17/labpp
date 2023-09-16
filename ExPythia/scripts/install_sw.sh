@@ -62,8 +62,9 @@ function compile() {
     make install
 
     cd ${devdir}/sources/fjcontrib-1.052
-   ./configure --prefix=${SWDIR}
-    make install
+    ./configure --prefix=${SWDIR} --fastjet-contrib=$(which fastjet-contrib)
+    make fragile-shared
+    make fragile-shared-install
 }
 
 #getSources

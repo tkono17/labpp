@@ -8,6 +8,9 @@ ClassImp(Jet)
 using namespace std;
 
 Jet::Jet() : TObject() {
+  for (int i=0; i<4; ++i) {
+    mP[i] = 0.0;
+  }
 }
 
 Jet::~Jet() {

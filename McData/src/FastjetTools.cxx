@@ -110,8 +110,15 @@ void convertLargeRJetData(const std::vector<fastjet::PseudoJet>& jets,
     jet = new ( (*ca_jets)[njets]) LargeRJet();
     jet->setMomentum(TLorentzVector(pj->px(), pj->py(), pj->pz(), pj->e()));
 
+    fastjet::contrib::EnergyCorrelator e1(1, beta);
+    fastjet::contrib::EnergyCorrelator e2(2, beta);
+    fastjet::contrib::EnergyCorrelator e3(3, beta);
     fastjet::contrib::EnergyCorrelatorD2 d2(beta);
-    jet->setD2(d2.result(*pj));
+    const fastjet::PseudoJet& jo = *pj;
+    jet->setE1(e1.result(jo));
+    jet->setE2(e2.result(jo));
+    jet->setE3(e3.result(jo));
+    jet->setD2(d2.result(jo));
     
     std::vector<fastjet::PseudoJet> constituents = pj->constituents();
     jet->setNConstituents(constituents.size());

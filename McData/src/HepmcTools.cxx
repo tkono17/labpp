@@ -117,6 +117,11 @@ int convertParticleData(const HepMC3::GenEvent& mcevent,
 
   particles->Clear();
   for (auto p1: mcevent.particles()) {
+    auto apdgid = abs(p1->pdg_id());
+    if ( !( (apdgid < 100) ||
+	    (apdgid>=6000000 && apdgid<6000010) ) )continue;
+    if (apdgid==21) continue; // exclude gluon
+    
     particle = new ( (*particles)[np]) McParticle();
     particle->setPDGID( p1->pdg_id());
     const HepMC3::FourVector& v4 = p1->momentum();
